@@ -156,8 +156,6 @@ class GeneticAlgorithm():
 
         return parents
 
-    
-
     def run(self):
 
         for i in range(self.num_generations):
