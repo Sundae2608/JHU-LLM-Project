@@ -63,4 +63,18 @@ def bring_examples_gsm8k(dataset, max_num_examples):
 
     return examples
 
+
+def bring_problems_to_solve_gsm8k(dataset, max_num_examples):
+
+    problems, answers = [], []
+
+    indexes = np.random.randint(len(dataset['train']), size=max_num_examples)
+
+    for index in indexes:
+
+        problems.append('Q: ' + dataset['train'][int(index)]['question'] + '\nA: ')
+        answers.append(dataset['train'][int(index)]['answer'])
+
+    return problems, answers
+
 #bring_examples_gsm8k(dataset, 3)

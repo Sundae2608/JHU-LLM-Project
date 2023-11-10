@@ -3,7 +3,7 @@ import numpy as np
 
 class GeneticAlgorithm():
 
-    def __init__(self, num_generations_, sys_instructions_, instructions_, examples_, pool_problems_, pool_answers_, num_individuals, p) -> None:
+    def __init__(self, num_generations_, sys_instructions_, instructions_, examples_, pool_problems_, pool_answers_, num_individuals, p, llm) -> None:
     
         self.num_generations = num_generations_
         self.sys_instructions = sys_instructions_
@@ -21,6 +21,9 @@ class GeneticAlgorithm():
         self.current_population, self.problem_indexes = [], []
 
         self.p = p
+        self.p_2 = p
+
+        self.llm = llm
 
 
     def create_population(self):
@@ -36,8 +39,12 @@ class GeneticAlgorithm():
             for x in range(l):
                 prompt_examples += self.examples[x] + ' \n'
 
-            prompt = self.sys_instructions[j] + '\n' + self.instructions[k] + '\n' + prompt_examples + ' \n' + self.pool_problems[m]
-
+            prompt = {'sys_instruction': self.sys_instructions[j], 
+                      'instruction': self.instructions[k],
+                      'examples': prompt_examples,
+                      'problem': self.pool_problems[m]}
+            
+            
             self.problem_indexes.append(m)
             self.current_population.append(prompt)
 
@@ -160,18 +167,53 @@ class GeneticAlgorithm():
 
         for i in range(self.num_generations):
 
-            evals, model_answ = self.evaluate(self.current_population, self.pool_answ_[np.array(self.problem_indexes)])
+
+            evals, model_answ = self.evaluate(self.current_population, self.pool_answ_[np.array(self.problem_indexes)], self.llm)
 
             generation_fitness = np.mean(evals)
+
+            print('Gen fitness',generation_fitness)
+            print(evals)
+
+            print(self.current_population)
+
+            print(model_answ)
 
             good_individual_indexes = np.where(evals==1)[0]
             bad_individual_indexes = np.where(evals==0)[0]
 
             parents = self.pick_parents(good_individual_indexes, self.p)
 
+            new_generation = []
+
             j=0
             while j < self.individuals_per_generation:
 
-                pass
-            ## TODO
+                if np.random.rand() > self.p_2:
+                    child_1, child_2 = self.crossover_1(parents[j], parents[j+1])
+
+                else:
+                    child_1, child_2 = self.crossover_2(parents[j], parents[j+1])
+
+                
+                for child in [child_1, child_2]:
+
+                    num_examples, sys_instruction_index, instruction_index = self.decode_prompt(child)
+
+                    prompt_examples = ''
+                    for x in range(num_examples):
+                        prompt_examples += self.examples[x] + ' \n'
+
+                    prompt = {'sys_instruction': self.sys_instructions[sys_instruction_index], 
+                            'instruction': self.instructions[instruction_index],
+                            'examples': prompt_examples,
+                            'problem': self.pool_problems[self.problem_indexes[j]]}
+                    
+                    new_generation.append(prompt)
+
+                    j+=1
+
+            
+            self.current_population = new_generation
+        
 
