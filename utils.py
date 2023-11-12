@@ -49,8 +49,6 @@ def decode_from_binary(binary_array, min_value, max_value):
     actual_value = normalized_value + min_value
     return actual_value
 
-
-
 def bring_examples_gsm8k(dataset, max_num_examples):
 
     examples = []

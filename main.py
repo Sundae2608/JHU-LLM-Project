@@ -32,13 +32,15 @@ class PromptMutationMechanism:
         return mutated_prompts
 
 # Instantiate your tasks, models, and the mutation mechanism
-task = Task('gsm8k', 'Solve the following problem:')
+task = Task('gsm8k', '"Solve the math word problem, giving your answer as an arabic numeral.')
 mutation_model = Model('mutation_model_name')
 evaluation_model = Model('evaluation_model_name')
 
 # Number of prompts to maintain and number of generations
 n_prompts = 10
 m_generations = 5
+
+# Step 1: Initialize the first 
 
 # Instantiate and run the prompt mutation mechanism
 prompt_mutation_mechanism = PromptMutationMechanism(task, mutation_model, evaluation_model, n_prompts, m_generations)

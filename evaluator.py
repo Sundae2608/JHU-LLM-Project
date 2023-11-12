@@ -1,31 +1,42 @@
+import random
+
 class Evaluator:
-    def __init__(self, train_dataset):
-        self.train_dataset = train_dataset
+    def __init__(self):
+        pass
 
-    def evaluate(self, model, prompts, test_dataset):
+    def evaluate(self, model, task, mode, prompts, num_eval):
+        # Score of each prompt
         scores = []
-        for prompt in prompts:
+        for i, prompt in enumerate(prompts):
+            print(f"Evaluating prompt {i}: {prompt}")
+            
+            # Sample 10 test and test time
             score = 0
-            for _ in range(10):  # Test each prompt 10 times
-                for test in test_dataset['test']:
-                    question = test['question']
-                    correct_answer = test['answer']
-                    # Randomly choose evaluation mode
-                    mode = random.choice(['zero', 'one', 'few'])
-                    if mode == 'zero':
-                        prompt_text = prompt.zero_shot_prompt()
-                    elif mode == 'one':
-                        example = random.choice(self.train_dataset['train'])['example']
-                        prompt_text = prompt.one_shot_prompt(example)
-                    else:  # few
-                        examples = [item['example'] for item in random.sample(self.train_dataset['train'], k=3)]
-                        prompt_text = prompt.few_shot_prompt(examples)
+            test_samples = task.train_samples(num_eval)
+            for i in range(num_eval):  # Test each prompt 10 times
+                # Get the sample
+                test_sample = test_samples[i]
+                question = test_sample['question']
+                correct_answer = test_sample['answer']
+                
+                # Create prompt text based on evaluation mode
+                if mode == 'zero':
+                    prompt_text = prompt.zero_shot_prompt(question)
+                elif mode == 'one':
+                    example = task.train_sample()
+                    prompt_text = prompt.one_shot_prompt(question, example)
+                else:  # few
+                    examples = task.train_samples(3)
+                    prompt_text = prompt.few_shot_prompt(question. examples)
 
-                    # Generate the answer using the model
-                    generated_answer = model.complete_text(f"{prompt_text} {question}", max_length=50)
+                # Generate the answer using the model
+                generated_answer = model.generate(prompt_text, max_tokens=500)
 
-                    # Check if the generated answer matches the correct answer
-                    if correct_answer.lower() in generated_answer.lower():
-                        score += 1
+                # Check if the generated answer matches the correct answer
+                print("---")
+                print(correct_answer)
+                print(generated_answer)
+                if task.evaluator_func(correct_answer, generated_answer):
+                    score += 1
             scores.append(score)  # Append the total score for the current prompt
         return scores
