@@ -1,219 +1,188 @@
-from utils import calculate_bits, encode_to_binary, decode_from_binary, last_number
+from experiment_conditions import Experiment_conditions
 import numpy as np
+from prompt import Prompt, encode_to_binary, decode_from_binary
+import random
+import pickle
+import os
+import datetime
+import time
 
-class GeneticAlgorithm():
+class GeneticAlgorithm:
 
-    def __init__(self, num_generations_, sys_instructions_, instructions_, examples_, pool_problems_, pool_answers_, num_individuals, p, llm) -> None:
-    
-        self.num_generations = num_generations_
-        self.sys_instructions = sys_instructions_
-        self.instructions = instructions_
-        self.examples = examples_
-        self.pool_problems = pool_problems_
-        self.pool_answ_ = pool_answers_
-
-        self.max_num_examples = len(examples_)
-        self.num_sys_instructions = len(self.sys_instructions)
-        self.num_instructions = len(self.instructions)
-
-        self.individuals_per_generation = num_individuals
-
-        self.current_population, self.problem_indexes = [], []
-
-        self.p = p
-        self.p_2 = p
-
-        self.llm = llm
-
-
-    def create_population(self):
-
-        for i in range(self.individuals_per_generation):
-
-            j = np.random.randint(self.num_sys_instructions)
-            k = np.random.randint(self.num_instructions)
-            l = np.random.randint(self.max_num_examples)
-            m = np.random.randint(len(self.pool_problems))
-
-            prompt_examples = ''
-            for x in range(l):
-                prompt_examples += self.examples[x] + ' \n'
-
-            prompt = {'sys_instruction': self.sys_instructions[j], 
-                      'instruction': self.instructions[k],
-                      'examples': prompt_examples,
-                      'problem': self.pool_problems[m]}
-            
-            
-            self.problem_indexes.append(m)
-            self.current_population.append(prompt)
-
-
-
-    def encode_prompt(self, num_examples, sys_instruction_index, instruction_index):
-
-        num_examples_encoded = encode_to_binary(value=num_examples, min_value=0, max_value=self.max_num_examples)
-
-        sys_instruction_encoded = encode_to_binary(value=sys_instruction_index, min_value=0, max_value=self.num_sys_instructions)
-
-        instruction_encoded = encode_to_binary(value=instruction_index, min_value=0, max_value=self.num_instructions)
-
-        return np.concatenate((num_examples_encoded, sys_instruction_encoded, instruction_encoded))
-
-
-    def decode_prompt(self, encoded_array):
+    def __init__(self, experiment_conditions:Experiment_conditions, num_individuals:int, num_generatios:int) -> None:
         
-        num_examples_bits = calculate_bits(0, self.max_num_examples)
-        sys_instruction_bits = calculate_bits(0, self.num_sys_instructions)
+        self.experiment_conditions = experiment_conditions
 
-        # Split the array back into its original components
-        num_examples_encoded = encoded_array[:num_examples_bits]
-        sys_instruction_encoded = encoded_array[num_examples_bits:num_examples_bits + sys_instruction_bits]
-        instruction_encoded = encoded_array[num_examples_bits + sys_instruction_bits:]
+        if num_individuals % 2 != 0:
+            raise Exception('Population must have an even number of individuals')
 
-        # Decode 
-        num_examples = decode_from_binary(num_examples_encoded, 0, self.max_num_examples)
-        sys_instruction_index = decode_from_binary(sys_instruction_encoded, 0, self.num_sys_instructions)
-        instruction_index = decode_from_binary(instruction_encoded, 0, self.num_instructions)
+        self.num_individuals = num_individuals
+        self.num_generations = num_generatios
 
-        num_examples = self.max_num_examples if num_examples > self.max_num_examples else num_examples
-        sys_instruction_index = self.num_sys_instructions if sys_instruction_index > self.num_sys_instructions else sys_instruction_index
-        instruction_index = self.num_instructions if instruction_index > self.num_instructions else instruction_index
+        self.generations = {0:[]}
+        self.fitness_per_gen = {0:[]}
+        self.run_time = 0
 
-        return num_examples, sys_instruction_index, instruction_index
-    
+    def save_experiment(self):
 
-    def crossover_1(self, parent1, parent2):
+        path = self.experiment_conditions.llm.model + '--' + str(self.experiment_conditions.dataset.dataset_name) + '--' + str(datetime.datetime.now() )
 
-        cutoff = np.random.randint(len(parent1))
+        os.mkdir(path)
 
-        child_1 = np.concatenate((parent1[0:cutoff], parent2[cutoff:]))
-        child_2 = np.concatenate((parent2[0:cutoff], parent1[cutoff:]))
+        exp_cond = {}
+        exp_cond['llm'] = {'provider': self.experiment_conditions.llm.provider, 'model': self.experiment_conditions.llm.model}
+        exp_cond['mutators'] = self.experiment_conditions.prompt_mutators
+        exp_cond['sys_prompts'] = self.experiment_conditions.sys_prompts
+        exp_cond['instructions'] = self.experiment_conditions.instructions
+        exp_cond['examples'] = self.experiment_conditions.examples
+        exp_cond['dataset'] = self.experiment_conditions.dataset.dataset_name
 
-        return child_1, child_2
+        with open(path + '/exp_conditions.pkl', 'wb') as f:
+            pickle.dump(exp_cond, f)
 
-
-    def crossover_2(self, parent1, parent2, llm, mutation_prompt):
-
-        cutoff = np.random.randint(len(parent1))
-
-        child_1 = np.concatenate((parent1[0:cutoff], parent2[cutoff:]))
-        child_2 = np.concatenate((parent2[0:cutoff], parent1[cutoff:]))
-
-        num_examples_bits = calculate_bits(0, self.max_num_examples)
-        num_sys_instr_bits = calculate_bits(0, self.num_sys_instructions)
-
-        instruct_child_1 = decode_from_binary(child_1[num_examples_bits + num_sys_instr_bits:], 0, self.num_instructions)
-        instruct_child_2 = decode_from_binary(child_2[num_examples_bits + num_sys_instr_bits:], 0, self.num_instructions)
-
-        new_instruct_child_1 = llm.generate(mutation_prompt + '/n' + self.instructions[instruct_child_1])
-        new_instruct_child_2 = llm.generate(mutation_prompt + '/n' + self.instructions[instruct_child_2])
-
-        new_instructions_array = np.concatenate((self.instructions,np.array([new_instruct_child_1, new_instruct_child_2])))
-        self.instructions = new_instructions_array
-        self.num_instructions += 2
-
-        encoded_new_instruct_1 = encode_to_binary(self.num_instructions-2, 0, self.num_instructions)
-        encoded_new_instruct_2 = encode_to_binary(self.num_instructions-1, 0, self.num_instructions)
-
-        child_1 = np.concatenate((child_1[0:num_examples_bits + num_sys_instr_bits], encoded_new_instruct_1))
-        child_2 = np.concatenate((child_2[0:num_examples_bits + num_sys_instr_bits], encoded_new_instruct_2))
-
-        return child_1, child_2
-    
-
-    def evaluate(self, prompts, answers, llm):
-
-        evaluations = np.zeros(len(answers))
-
-        model_ans = ['']*len(answers)
-
-        for i in range(len(prompts)):
-
-            model_ans[i] = llm.generate(prompts[i])
-
-            if last_number(answers[i]) == last_number(model_ans[i] ):
-
-                evaluations[i] = 1
-        
-        return evaluations, model_ans
-    
-    def pick_parents(self, good_individual_indexes, p):
-        
-        parents = []
-        i = 0
-
-        while i < self.individuals_per_generation:
-
-            j_temp = np.random.randint(len(good_individual_indexes))
-            k_temp = np.random.randint(len(good_individual_indexes))
-
-            j = good_individual_indexes[j_temp]
-            k = good_individual_indexes[k_temp]
-
-            parent_1 = self.current_population[j]
-            parent_2 = self.current_population[k]
-
-            mating_prob = np.random.rand()
-
-            if mating_prob > p:
-                parents.append(parent_1)
-                parents.append(parent_2)
-                i+=2
-
-        return parents
-
-    def run(self):
+        exp_run = {'run_time': self.run_time}
 
         for i in range(self.num_generations):
 
+            individuals = {}
 
-            evals, model_answ = self.evaluate(self.current_population, self.pool_answ_[np.array(self.problem_indexes)], self.llm)
+            for j in range(self.num_individuals):
 
-            generation_fitness = np.mean(evals)
-
-            print('Gen fitness',generation_fitness)
-            print(evals)
-
-            print(self.current_population)
-
-            print(model_answ)
-
-            good_individual_indexes = np.where(evals==1)[0]
-            bad_individual_indexes = np.where(evals==0)[0]
-
-            parents = self.pick_parents(good_individual_indexes, self.p)
-
-            new_generation = []
-
-            j=0
-            while j < self.individuals_per_generation:
-
-                if np.random.rand() > self.p_2:
-                    child_1, child_2 = self.crossover_1(parents[j], parents[j+1])
-
-                else:
-                    child_1, child_2 = self.crossover_2(parents[j], parents[j+1])
-
+                individuals[j] = {'sys_prompt_idx': self.generations[i][j].sys_prompt_idx,
+                                  'instruction_idx': self.generations[i][j].instruction_idx,
+                                  'num_examples': self.generations[i][j].num_examples,
+                                  'fitness': self.fitness_per_gen[i][j]}
                 
-                for child in [child_1, child_2]:
+            exp_run[i] = individuals
 
-                    num_examples, sys_instruction_index, instruction_index = self.decode_prompt(child)
 
-                    prompt_examples = ''
-                    for x in range(num_examples):
-                        prompt_examples += self.examples[x] + ' \n'
+        with open(path + '/ga_run.pkl', 'wb') as f:
+            pickle.dump(exp_run, f)
+    
+    def init_population(self):
 
-                    prompt = {'sys_instruction': self.sys_instructions[sys_instruction_index], 
-                            'instruction': self.instructions[instruction_index],
-                            'examples': prompt_examples,
-                            'problem': self.pool_problems[self.problem_indexes[j]]}
-                    
-                    new_generation.append(prompt)
+        for i in range(self.num_individuals):
 
-                    j+=1
+            num_examples = np.random.randint(self.experiment_conditions.max_num_examples)
+            sys_prompt_idx = np.random.randint(len(self.experiment_conditions.sys_prompts))
+            instruction_idx = np.random.randint(len(self.experiment_conditions.instructions))
 
+            individual = Prompt(self.experiment_conditions, sys_prompt_idx, instruction_idx, num_examples)
+
+            self.generations[0].append(individual)
+
+    
+    def crossover(self, parent_1:Prompt, parent_2:Prompt):
+
+        mutation_type = np.random.randint(2)
+
+        cutoff = np.random.randint(len(parent_1.encoded_prompt))
+
+        if mutation_type == 0:
+
+            child_1 = np.concatenate((parent_1.encoded_prompt[0:cutoff], parent_2.encoded_prompt[cutoff:]))
+            child_2 = np.concatenate((parent_2.encoded_prompt[0:cutoff], parent_1.encoded_prompt[cutoff:]))
+
+        elif mutation_type == 1:
+
+            child_1 = np.concatenate((parent_1.encoded_prompt[0:cutoff], parent_2.encoded_prompt[cutoff:]))
+            child_2 = np.concatenate((parent_2.encoded_prompt[0:cutoff], parent_1.encoded_prompt[cutoff:]))
+
+            i = np.random.randint(len(self.experiment_conditions.prompt_mutators))
+            j = np.random.randint(len(self.experiment_conditions.prompt_mutators))
+
+            inst_child_1_idx = decode_from_binary(child_1[12:])
+            inst_child_2_idx = decode_from_binary(child_2[12:])
+
+            new_instruct_child_1 = self.experiment_conditions.llm.mutate(self.experiment_conditions.prompt_mutators[i], 
+                                                                           self.experiment_conditions.instructions[inst_child_1_idx])
+            new_instruct_child_2 = self.experiment_conditions.llm.mutate(self.experiment_conditions.prompt_mutators[j],
+                                                                           self.experiment_conditions.instructions[inst_child_2_idx])
             
-            self.current_population = new_generation
+            self.experiment_conditions.instructions.append(new_instruct_child_1)
+            self.experiment_conditions.instructions.append(new_instruct_child_2)
+
+            encoded_new_instruct_1 = encode_to_binary(len(self.experiment_conditions.instructions)-2, 6)
+            encoded_new_instruct_2 = encode_to_binary(len(self.experiment_conditions.instructions)-1, 6)
+
+            child_1 = np.concatenate((child_1[0:12], encoded_new_instruct_1))
+            child_2 = np.concatenate((child_2[0:12], encoded_new_instruct_2))
+
+        else:
+
+            child_1 = parent_1.econded_prompt
+            child_2 = parent_2.econded_prompt
         
+        return child_1, child_2
+    
+
+    def create_next_generation(self, generation, encoded_children):
+
+        self.generations[generation] = []
+
+        for encoded_child in encoded_children:
+
+            individual = Prompt(self.experiment_conditions, None, None, None, binary_encoding=encoded_child)
+
+            self.generations[generation].append(individual)
+        
+        self.fitness_per_gen[generation] = []
+    
+    
+    def selection_process(self, generation):
+
+        encoded_children = []
+
+        individuals_idx = range(self.num_individuals)
+
+        selected_parents_idx = random.choices(individuals_idx, weights=self.fitness_per_gen[generation], k=self.num_individuals)
+
+        i=0
+        while i < len(selected_parents_idx):
+
+            parent_1 = self.generations[generation][selected_parents_idx[i]]
+            parent_2 = self.generations[generation][selected_parents_idx[i+1]]
+
+            child_1, child_2 = self.crossover(parent_1, parent_2)
+
+            encoded_children.append(child_1)
+            encoded_children.append(child_2)
+
+            i+=2
+        
+        return encoded_children
+    
+
+    def calculate_generation_fitness(self, generation):
+
+        for prompt in self.generations[generation]:
+
+            self.fitness_per_gen[generation].append(prompt.evaluate())
+
+
+    
+    def run_algorithm(self):
+
+        start = time.time()
+
+        for i in range(self.num_generations):
+
+            self.calculate_generation_fitness(i)
+    
+            if i != self.num_generations-1:
+
+                encoded_children = self.selection_process(i)
+
+                self.create_next_generation(i+1, encoded_children)
+        
+        self.run_time = time.time() - start
+
+
+
+
+
+
+
+
+
 
