@@ -263,7 +263,7 @@ class GeneticAlgo():
                  problems_prompt=self.population[i].create_prompts(problems,dataset)
              else:
                 problem_prompts=self.population[i].reconstruct_prompt(problems,dataset)
-             evaluations=population[i].evaluate_problems(problems_prompt,answers,model_name,lcpp_llm,openai_client)
+             evaluations=self.population[i].evaluate_problems(problems_prompt,answers,model_name,lcpp_llm,openai_client)
              accuracy=np.sum(evaluations)/len(evaluations)*100
              self.fitness_score[i]=accuracy
      
