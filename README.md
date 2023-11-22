@@ -2,10 +2,10 @@
 Final Project for the LLM class
 
 Current status:
-1. We have a working mutation mechanism that improves a bit from the baseline.
 
-Goal:
-1. Keep doing more in the mutation algorithms.
-2. Do evaluation on multiple models. GPT-4, GPT-3.5 and a bunch of local models (LLama & Mistral).
-3. Do it on a few more tasks.
-4. 
+Nov 19: A working mechanism that mutates and judges prompt, given a task.
+
+Improvements:
+
+1. Add CI into the score. This helps avoid the situation where a nascent gene takes over a good old gene because of CI. Best to use score - CI for judgement.
+2. Load other types of model, not just the current 7 billion parameter model (Done).

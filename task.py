@@ -16,14 +16,14 @@ class Task:
         return self.dataset['test']
     
     def train_samples(self, n):
-        sampled_indices = random.sample(range(n), n)
+        sampled_indices = random.sample(range(len(self.dataset['test'])), n)
         samples = [self.dataset['train'][i] for i in sampled_indices]
-        return samples
+        return sampled_indices, samples
     
     def test_samples(self, n):
-        sampled_indices = random.sample(range(n), n)
+        sampled_indices = random.sample(range(len(self.dataset['test'])), n)
         samples = [self.dataset['test'][i] for i in sampled_indices]
-        return samples
+        return sampled_indices, samples
         
     def train_sample(self):
         return random.choice(self.dataset['train'])

@@ -1,20 +1,25 @@
 import random
 
 class Evaluator:
-    def __init__(self):
+    def __init__(self, print_text_completion=False):
+        self.print_text_completion = print_text_completion
         pass
 
     def evaluate(self, model, task, mode, prompts, num_eval):
         # Score of each prompt
         scores = []
+        
+        # Sample some test first
+        test_indices, test_samples = task.test_samples(num_eval)
+        print(f"Evaluating test samples: {str(test_indices)}")
         for i, prompt in enumerate(prompts):
             print(f"Evaluating prompt {i}: {prompt}")
             
             # Sample 10 test and test time
             score = 0
-            test_samples = task.train_samples(num_eval)
-            for i in range(num_eval):  # Test each prompt 10 times
+            for i in range(num_eval):
                 # Get the sample
+                test_index = test_indices[i]
                 test_sample = test_samples[i]
                 question = test_sample['question']
                 correct_answer = test_sample['answer']
@@ -30,13 +35,19 @@ class Evaluator:
                     prompt_text = prompt.few_shot_prompt(question. examples)
 
                 # Generate the answer using the model
-                generated_answer = model.generate(prompt_text, max_tokens=500)
+                generated_answer = model.generate(prompt_text)
 
                 # Check if the generated answer matches the correct answer
-                print("---")
-                print(correct_answer)
-                print(generated_answer)
+                if self.print_text_completion:
+                    print("---")
+                    print(correct_answer)
+                    print(generated_answer)
                 if task.evaluator_func(correct_answer, generated_answer):
-                    score += 1
-            scores.append(score)  # Append the total score for the current prompt
+                    correct = True
+                    score = 1
+                else:
+                    correct = False
+                    score = 0
+                prompt.add_evaluation(test_index, correct, score)
+            scores.append(prompt.get_accuracy())  # Append the total score for the current prompt
         return scores
