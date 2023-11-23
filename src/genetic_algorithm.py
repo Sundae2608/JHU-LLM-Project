@@ -144,10 +144,10 @@ class GeneticAlgorithm:
 
         selected_parents_idx = random.choices(individuals_idx, weights=self.fitness_per_gen[generation], k=self.num_individuals)
 
-        i=0
+        i=1
         while i < len(selected_parents_idx):
 
-            print(f'Performing selection process: {(i*100)/len(selected_parents_idx):.1f}%')
+            print(f'Performing selection process: {(i*100)/len(selected_parents_idx):.1f}%', end='\r')
 
             parent_1 = self.generations[generation][selected_parents_idx[i]]
             parent_2 = self.generations[generation][selected_parents_idx[i+1]]
