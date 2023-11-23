@@ -1,5 +1,5 @@
-from dataset import Dataset
-from llm import LLM
+from src.dataset import Dataset
+from src.llm import LLM
 
 class Experiment_conditions:
 

@@ -1,6 +1,6 @@
-from experiment_conditions import Experiment_conditions
+from src.experiment_conditions import Experiment_conditions
 import numpy as np
-from prompt import Prompt, encode_to_binary, decode_from_binary
+from src.prompt import Prompt, encode_to_binary, decode_from_binary
 import random
 import pickle
 import os
@@ -118,18 +118,25 @@ class GeneticAlgorithm:
 
     def create_next_generation(self, generation, encoded_children):
 
+        print()
         self.generations[generation] = []
-
+        i=1
         for encoded_child in encoded_children:
+
+            print(f'Creating next generation: {(i*100)/len(encoded_children):.1f}%', end='\r')
 
             individual = Prompt(self.experiment_conditions, None, None, None, binary_encoding=encoded_child)
 
             self.generations[generation].append(individual)
+
+            i+=1
         
         self.fitness_per_gen[generation] = []
     
     
     def selection_process(self, generation):
+
+        print()
 
         encoded_children = []
 
@@ -139,6 +146,8 @@ class GeneticAlgorithm:
 
         i=0
         while i < len(selected_parents_idx):
+
+            print(f'Performing selection process: {(i*100)/len(selected_parents_idx):.1f}%')
 
             parent_1 = self.generations[generation][selected_parents_idx[i]]
             parent_2 = self.generations[generation][selected_parents_idx[i+1]]
@@ -155,9 +164,15 @@ class GeneticAlgorithm:
 
     def calculate_generation_fitness(self, generation):
 
+        print()
+        i=1
         for prompt in self.generations[generation]:
 
+            print(f'Calculating fitness: {(i*100)/len(self.generations[generation]):.1f}%', end='\r')
+
             self.fitness_per_gen[generation].append(prompt.evaluate())
+
+            i+=1
 
 
     
@@ -166,6 +181,8 @@ class GeneticAlgorithm:
         start = time.time()
 
         for i in range(self.num_generations):
+
+            print('Generation:', i)
 
             self.calculate_generation_fitness(i)
     

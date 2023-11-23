@@ -1,4 +1,4 @@
-from experiment_conditions import Experiment_conditions
+from src.experiment_conditions import Experiment_conditions
 import numpy as np
 
 
