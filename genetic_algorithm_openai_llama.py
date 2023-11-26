@@ -62,7 +62,10 @@ def select_model(model_name):
                           n_gpu_layers=32 # Change this value based on your model and your GPU VRAM pool.
                        )
     elif model_name == "DAVINCI":
-        OPENAI_API_KEY="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"
+        api_key = os.environ.get('OPENAI_API_KEY')
+        OPENAI_API_KEY=api_key
+        openai_client = OpenAI(api_key=api_key)
+        openai_client = OpenAI(api_key=OPENAI_API_KEY)
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
     else:
         print("Unsupported model")
