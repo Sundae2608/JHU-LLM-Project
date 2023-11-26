@@ -37,3 +37,8 @@ class PromptMutator:
         mutation_methods = [self._mutate_prompt1]
         selected_method = random.choice(mutation_methods)
         return selected_method(prompt, mutator)
+    
+    def crossover(self, prompt1: Prompt, prompt2: Prompt):
+        '''
+        In a crossover scheme
+        '''
