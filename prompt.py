@@ -25,9 +25,6 @@ class Prompt:
         self.system_instruction = system_instruction
         self.thinking_style = thinking_style
         
-        # Examples storage
-        self.samples = samples
-        
         # Evaluation storage
         self.evaluated_indices = set()
         self.score = 0
@@ -88,6 +85,13 @@ class Prompt:
             QUESTION: {question}
             ANSWER: """
         return remove_leading_spaces_and_lines(prompt)
+    
+    def gene(self):
+        return (
+            self.task,
+            self.system_instruction,
+            self.thinking_style
+        )
     
     def __repr__(self):
         return self.task

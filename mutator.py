@@ -40,5 +40,27 @@ class PromptMutator:
     
     def crossover(self, prompt1: Prompt, prompt2: Prompt):
         '''
-        In a crossover scheme
+        In a crossover scheme, basically we pick a random part from either gene
         '''
+        gene1 = prompt1.gene()
+        gene2 = prompt2.gene()
+        
+        offspring1 = list(gene1)  # Create copies of parents
+        offspring2 = list(gene2)
+
+        for i in range(len(parent1)):
+            if random.random() < 0.5:  # 50% probability for each element
+                offspring1[i], offspring2[i] = offspring2[i], offspring1[i]
+
+        # Check if offspring genes are identical and swap elements if needed
+        while tuple(offspring1) == parent1 or tuple(offspring1) == parent2:
+            idx = random.randint(0, len(offspring1) - 1)
+            offspring1[idx], offspring2[idx] = offspring2[idx], offspring1[idx]
+
+        while tuple(offspring2) == parent1 or tuple(offspring2) == parent2:
+            idx = random.randint(0, len(offspring2) - 1)
+            offspring1[idx], offspring2[idx] = offspring2[idx], offspring1[idx]
+
+        return Prompt(offspring1[0], offspring1[1], offspring1[2]), Prompt(offspring2[0], offspring2[1], offspring2[2])
+        
+        
