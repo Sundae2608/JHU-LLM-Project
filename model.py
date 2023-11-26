@@ -4,7 +4,7 @@ from transformers import pipeline
 from ctransformers import AutoModelForCausalLM
 
 class Model:
-    def __init__(self, provider='openai', model_name='text-davinci-003'):
+    def __init__(self, provider='openai', model_name='text-davinci-003', model_file='', model_type=''):
         """
         Initialize the Language Model Manager (LLM) class.
 
@@ -19,6 +19,8 @@ class Model:
         # Input function
         self.provider = provider
         self.model_name = model_name
+        self.model_file = model_file
+        self.model_type = model_type
         self.api_key = os.getenv("OPENAI_KEY")
         self.pipeline = None
         self.ctransformer_llm = None
@@ -33,7 +35,7 @@ class Model:
             self.pipeline = pipeline('text-generation', model=self.model_name)
         elif self.provider == 'quantized_llama':
             # Initialize C-transformer model
-            self.ctransformer_llm = AutoModelForCausalLM.from_pretrained(self.model_name, model_type="llama", gpu_layers=50)
+            self.ctransformer_llm = AutoModelForCausalLM.from_pretrained(self.model_name, model_file=self.model_file, model_type=self.model_type, gpu_layers=50, context_length=2048)
 
     def generate(self, prompt, **kwargs):
         """
@@ -63,16 +65,3 @@ class Model:
             return self.ctransformer_llm(prompt, **kwargs)
         else:
             raise NotImplementedError("The specified provider is not supported")
-            
-            
-# if self.provider == 'openai':
-
-#     response = openai.ChatCompletion.create(
-#     model="gpt-3.5-turbo",
-#     messages=[
-#                 {"role": "system", "content": prompt['sys_instruction']},
-#                 {"role": "user", "content": prompt['instruction'] + '/n' + prompt['examples'] + '\n' + prompt['problem']},
-
-#             ]
-#             )
-#     return response['choices'][0]['message']['content']
