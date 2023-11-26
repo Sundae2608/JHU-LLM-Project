@@ -38,7 +38,11 @@ def select_model(model_name):
         print("Model selected is GPT_3")
         #from openai import OpenAI
         #import os
-        OPENAI_API_KEY=""
+        #OPENAI_API_KEY=""
+        # Access the API key from the environment variable
+        api_key = os.environ.get('OPENAI_API_KEY')
+        OPENAI_API_KEY=api_key
+        openai_client = OpenAI(api_key=api_key)
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
     elif model_name == "LLAMA-2":
         print("Model selected is LLAMA-2")
@@ -57,21 +61,52 @@ def select_model(model_name):
                           n_batch=512, # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU.
                           n_gpu_layers=32 # Change this value based on your model and your GPU VRAM pool.
                        )
+    elif model_name == "DAVINCI":
+        OPENAI_API_KEY="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"
+        openai_client = OpenAI(api_key=OPENAI_API_KEY)
     else:
-       print("Unsupported model")
+        print("Unsupported model")
     return lcpp_llm,openai_client
 
 class  PopulationMember():
     def __init__(self,problems_per_population_member,max_num_examples):
         print('Initializing Class Genetic Algorithm')
         self.sys_prompts = np.array(['Think like a graduate student and answer.',
-                                'You are a mathematics professor.',
-                                'You are a helpful assistant.'
+                                     'Think like a mathematics teacher  and answer',
+                                     'Approach the problem as a mathematics educator and provide your solution',
+                                     'Demonstrate the problem-solving process with the approach of a math instructor',
+                                     'Offer your answer using the teaching methodology of a mathematics educator',
+                                     'Think pedagogically and present your solution as if you were teaching it in a classroom',
+                                     'Approach the solution with the clarity and explanation of a mathematics teacher',
+                                     'Share your answer, providing step-by-step guidance akin to a math educator',
+                                     'Explain your solution as if you were guiding students through the problem as a math teacher',
+                                     'Employ the strategies and clarity of explanation expected of a mathematics instructor in your response',
+                                     'Solve the question while considering the method a math teacher would employ',
+                                'Think like a mathematics professor and solve this problem.',
+                                'Approach this problem with the precision and depth expected of a mathematics professor.',
+                                'Demonstrate your mastery by solving this problem through the lens of a mathematics professor',
+                                'Think deeply and analytically like a mathematics professor to resolve this problem.',
+                                'Utilize advanced mathematical theory and reasoning in your solution, akin to a math professor perspective.',
+                                'Approach this problem with the expertise and insight expected of a mathematics professor.',
+                                'Solve the problem with the rigor and sophistication typical of a mathematics professors approach.',
+                                'You are a helpful math solving assistant and helping someone with basic math skills.'
                               ])
 
         self.instructions = np.array(['Solve the math word problem, giving your answer as an arabic numeral.',
+                                      'Provide the numerical solution to the math word problem using Arabic numerals.',
+                                      'Find the solution and present it in the form of a numerical value written in Arabic numerals.',
+                                      'Provide the solution to the word problem as a numerical figure in Arabic numerals',
                                'Apply fundamental mathematical principles to solve the problem, and provide a clear numeric answer.',
-                                'Adapt a teaching approach, explaining the problem and solution as if educating someone with basic mathematical knowledge.'
+                               'Explain the problem and its solution using simple mathematical terms suitable for beginners.',
+                               'Present the problem and its resolution in a way that is easily graspable by those with elementary math understanding',
+                               'Simplify the problem explanation and solution for individuals with basic mathematical understanding.',
+                               'Adopt a beginner-friendly teaching style to elucidate the problem and its solution for individuals with limited math expertise.', 
+                               'Adjust your teaching approach to elucidate the problem and answer for those with fundamental math comprehension',
+                               'Teach the problem and its resolution as if guiding someone with elementary math skills.',
+                               'Explain the problem and its solution using simple mathematical terms suitable for beginners.',
+                               'Present the problem and solution in a manner accessible to someone with foundational math understanding.',
+                               'Adopt a beginner-friendly teaching style to elucidate the problem and its solution for individuals with limited math expertise.',
+                               'Adapt a teaching approach, explaining the problem and solution as if educating someone with basic mathematical knowledge.'
                                 ])
         self.max_num_examples=max_num_examples
         self.num_problems=problems_per_population_member
@@ -160,6 +195,19 @@ class  PopulationMember():
                      echo=True)
                      print(response['choices'][0]['text'])
                      generated_answer=last_number(response['choices'][0]['text'])
+                elif model_name == "DAVINCI":
+                     response = openai_client.completions.create(
+                                      model="text-davinci-003",
+                                      prompt=prompt,
+                                      temperature=1,
+                                      max_tokens=1024,
+                                      top_p=1,
+                                      frequency_penalty=0,
+                                      presence_penalty=0
+                                      )
+                     print(response.choices[0].text)
+                     generated_answer=last_number(response.choices[0].text)
+                     time.sleep(25)
                 else:
                      print("Unsupported model")        
                 print('Actual Answer is ',actual_answer)
@@ -236,7 +284,7 @@ class  PopulationMember():
         self.example_prompt=self.reconstruct_examples(dataset)
         #First add example to prompt_template
         prompt_template=prompt_template+self.example_prompt
-        print('New Prompt Template')
+        
         prompt_template=prompt_template+f'''USER:Please answer this question
         '''
         for i in range(self.num_problems):
@@ -257,12 +305,12 @@ class GeneticAlgo():
      def add_member(self,member):
          self.population.append(member)
     
-     def compute_fitness_score(self,generation):
+     def compute_fitness_score(self,generation,problems,dataset):
          for i in range(self.population_size):
              if generation == 0:
                  problems_prompt=self.population[i].create_prompts(problems,dataset)
              else:
-                problem_prompts=self.population[i].reconstruct_prompt(problems,dataset)
+                problems_prompt=self.population[i].reconstruct_prompt(problems,dataset)
              evaluations=self.population[i].evaluate_problems(problems_prompt,answers,model_name,lcpp_llm,openai_client)
              accuracy=np.sum(evaluations)/len(evaluations)*100
              self.fitness_score[i]=accuracy
@@ -284,15 +332,27 @@ class GeneticAlgo():
          idx = np.argsort(self.fitness_score)
          print('Index ',idx)
          print('Population Members being eliminated are ',idx[0:number_kill])
+         output_string='Population Members being eliminated are '+str(idx[0:number_kill])
+         fo.write(output_string)
+         fo.flush()
          print('Best Performing population members are ',idx[self.population_size-2:self.population_size])
+         output_string='Crossover candidates are '+str(idx[self.population_size-2])+' and '+str(idx[self.population_size-1])+' Replace members '+str(idx[2])+' and '+str(idx[3])+'\n'
+         fo.write(output_string)
+         fo.flush()
          #Mutation of 2 random members 
          #and replacement of the worst 2 in the previous population        
          mutation_idx1=np.random.randint(self.population_size)
          self.population[idx[0]]=self.population[mutation_idx1]
          self.population[idx[0]].mutate_gene()
+         output_string='Mutating member '+str(mutation_idx1)+' and updating member '+str(idx[0])+'\n'
+         fo.write(output_string)
+         fo.flush()
          mutation_idx2=np.random.randint(self.population_size)
          self.population[idx[1]]=self.population[mutation_idx2]
          self.population[idx[1]].mutate_gene()
+         output_string='Mutating member '+str(mutation_idx2)+' and updating member '+str(idx[1])+'\n'
+         fo.write(output_string)
+         fo.flush()
          # Now do a crossover for the best 2 candidate members
          #Best member from prev generation
          crossover_parent1=idx[self.population_size-1]
@@ -301,9 +361,12 @@ class GeneticAlgo():
          gene1,gene2=self.crossover(crossover_parent1,crossover_parent2)
          self.population[idx[2]].gene=gene1
          self.population[idx[3]].gene=gene2
-         
-select_model("GPT_3")
 
+
+model_name="GPT_3" 
+#model_name="DAVINCI"       
+#select_model("GPT_3")
+#select_model(model_name)
 
 dataset = load_dataset("gsm8k", 'main')
 train_data = dataset["train"]
@@ -312,16 +375,17 @@ test_data = dataset["test"]
 print('Length of Training Dataset is ',len(train_data))
 print('Length of Test Dataset is ',len(test_data))
 #model_name="LLAMA-2"
-model_name="GPT_3"
+
 lcpp_llm,openai_client=select_model(model_name)
 
-problems_per_population_member=5
+problems_per_population_member=10
 max_num_examples=3
 population_size=10
 #Indicates the fraction of the population that will survive to the next generation
 #unfortunately hard coded for now
 carry_forward_next_gen=0.6
 num_generations=10
+#Enable to reuse problems for all generations
 [problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
 
 genetic=GeneticAlgo(population_size,carry_forward_next_gen)
@@ -335,13 +399,19 @@ for i in range(population_size):
 start_time = time.time()
 fo = open("results.txt", "w")
 for generation in range(num_generations):
-     genetic.compute_fitness_score(generation)
-     genetic.select_next_population()
-     print('Accuarcy of  population is ',genetic.fitness_score,'%')
+#    Enable to use different problems each generation 
+#    [problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
      output_string='Generation '+str(generation)+'\n'
      fo.write(output_string)
-     output_string='Accuarcy of  population is '+str(genetic.fitness_score)+'%'+'\n'
+     fo.flush()
+     genetic.compute_fitness_score(generation,problems,dataset)
+     average_accuracy=np.average(genetic.fitness_score)
+     print('Accuracy of  population is ',genetic.fitness_score,'%')
+
+     output_string='Accuracy of  population is '+str(genetic.fitness_score)+'%'+' Average Accuracy is '+str(average_accuracy)+'\n'
      fo.write(output_string)
+     fo.flush()
+     genetic.select_next_population()    
 # End time
 end_time = time.time()
 fo.close()
@@ -352,4 +422,4 @@ elapsed_time = end_time - start_time
 
 
 
-print('Elapsed Time for evaluating one member of population is ',elapsed_time)
+print('Elapsed Time for evaluating  is ',elapsed_time)
