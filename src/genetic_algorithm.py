@@ -91,9 +91,12 @@ class GeneticAlgorithm:
             i = np.random.randint(len(self.experiment_conditions.prompt_mutators))
             j = np.random.randint(len(self.experiment_conditions.prompt_mutators))
 
-            inst_child_1_idx = decode_from_binary(child_1[12:])
-            inst_child_2_idx = decode_from_binary(child_2[12:])
+            inst_child_1_idx = decode_from_binary(child_1[18:]) 
+            inst_child_2_idx = decode_from_binary(child_2[18:])
 
+            inst_child_1_idx = len(self.experiment_conditions.instructions)-1 if inst_child_1_idx >= len(self.experiment_conditions.instructions) else inst_child_1_idx
+            inst_child_2_idx = len(self.experiment_conditions.instructions)-1 if inst_child_2_idx >= len(self.experiment_conditions.instructions) else inst_child_2_idx
+            
             new_instruct_child_1 = self.experiment_conditions.llm.mutate(self.experiment_conditions.prompt_mutators[i], 
                                                                            self.experiment_conditions.instructions[inst_child_1_idx])
             new_instruct_child_2 = self.experiment_conditions.llm.mutate(self.experiment_conditions.prompt_mutators[j],
@@ -102,11 +105,11 @@ class GeneticAlgorithm:
             self.experiment_conditions.instructions.append(new_instruct_child_1)
             self.experiment_conditions.instructions.append(new_instruct_child_2)
 
-            encoded_new_instruct_1 = encode_to_binary(len(self.experiment_conditions.instructions)-2, 6)
-            encoded_new_instruct_2 = encode_to_binary(len(self.experiment_conditions.instructions)-1, 6)
+            encoded_new_instruct_1 = encode_to_binary(len(self.experiment_conditions.instructions)-2, 9)
+            encoded_new_instruct_2 = encode_to_binary(len(self.experiment_conditions.instructions)-1, 9)
 
-            child_1 = np.concatenate((child_1[0:12], encoded_new_instruct_1))
-            child_2 = np.concatenate((child_2[0:12], encoded_new_instruct_2))
+            child_1 = np.concatenate((child_1[0:18], encoded_new_instruct_1))
+            child_2 = np.concatenate((child_2[0:18], encoded_new_instruct_2))
 
         else:
 
@@ -123,12 +126,11 @@ class GeneticAlgorithm:
         i=1
         for encoded_child in encoded_children:
 
-            print(f'Creating next generation: {(i*100)/len(encoded_children):.1f}%', end='\r')
-
             individual = Prompt(self.experiment_conditions, None, None, None, binary_encoding=encoded_child)
 
             self.generations[generation].append(individual)
 
+            print(f'Creating next generation: {(i*100)/len(encoded_children):.1f}%', end='\r')
             i+=1
         
         self.fitness_per_gen[generation] = []
@@ -144,10 +146,8 @@ class GeneticAlgorithm:
 
         selected_parents_idx = random.choices(individuals_idx, weights=self.fitness_per_gen[generation], k=self.num_individuals)
 
-        i=1
+        i=0
         while i < len(selected_parents_idx):
-
-            print(f'Performing selection process: {(i*100)/len(selected_parents_idx):.1f}%', end='\r')
 
             parent_1 = self.generations[generation][selected_parents_idx[i]]
             parent_2 = self.generations[generation][selected_parents_idx[i+1]]
@@ -157,6 +157,7 @@ class GeneticAlgorithm:
             encoded_children.append(child_1)
             encoded_children.append(child_2)
 
+            print(f'Performing selection process: {((i+1)*100)/len(selected_parents_idx):.1f}%', end='\r')
             i+=2
         
         return encoded_children
@@ -168,10 +169,9 @@ class GeneticAlgorithm:
         i=1
         for prompt in self.generations[generation]:
 
-            print(f'Calculating fitness: {(i*100)/len(self.generations[generation]):.1f}%', end='\r')
-
             self.fitness_per_gen[generation].append(prompt.evaluate())
 
+            print(f'Calculating fitness: {(i*100)/len(self.generations[generation]):.1f}%', end='\r')
             i+=1
 
 
@@ -181,6 +181,7 @@ class GeneticAlgorithm:
         start = time.time()
 
         for i in range(self.num_generations):
+            print()
 
             print('Generation:', i)
 

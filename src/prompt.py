@@ -24,11 +24,11 @@ class Prompt:
 
     def encode_prompt(self):
 
-        num_examples_encoded = encode_to_binary(value=self.num_examples, bits_to_use=6)
+        num_examples_encoded = encode_to_binary(value=self.num_examples, bits_to_use=9)
 
-        sys_instruction_encoded = encode_to_binary(value=self.sys_prompt_idx, bits_to_use=6)
+        sys_instruction_encoded = encode_to_binary(value=self.sys_prompt_idx, bits_to_use=9)
 
-        instruction_encoded = encode_to_binary(value=self.instruction_idx, bits_to_use=6)
+        instruction_encoded = encode_to_binary(value=self.instruction_idx, bits_to_use=9)
 
         return np.concatenate((num_examples_encoded, sys_instruction_encoded, instruction_encoded))
     
@@ -37,9 +37,9 @@ class Prompt:
         
 
         # Split the array back into its original components
-        num_examples_encoded = encoded_array[:6]
-        sys_instruction_encoded = encoded_array[6:12]
-        instruction_encoded = encoded_array[12:]
+        num_examples_encoded = encoded_array[:9]
+        sys_instruction_encoded = encoded_array[9:18]
+        instruction_encoded = encoded_array[18:]
 
         # Decode 
         num_examples = decode_from_binary(num_examples_encoded)
@@ -47,8 +47,8 @@ class Prompt:
         instruction_index = decode_from_binary(instruction_encoded)
 
         num_examples = self.experiment_conditions.max_num_examples if num_examples > self.experiment_conditions.max_num_examples  else num_examples
-        sys_instruction_index = len(self.experiment_conditions.sys_prompts) if sys_instruction_index > len(self.experiment_conditions.sys_prompts) else sys_instruction_index
-        instruction_index = len(self.experiment_conditions.instructions) if instruction_index > len(self.experiment_conditions.instructions)  else instruction_index
+        sys_instruction_index = len(self.experiment_conditions.sys_prompts)-1 if sys_instruction_index >= len(self.experiment_conditions.sys_prompts) else sys_instruction_index
+        instruction_index = len(self.experiment_conditions.instructions)-1 if instruction_index >= len(self.experiment_conditions.instructions) else instruction_index
 
         return num_examples, sys_instruction_index, instruction_index
     
@@ -57,7 +57,7 @@ class Prompt:
 
         fitness = 0
 
-        problems, answers = self.experiment_conditions.dataset.pick_random_problems(5)
+        problems, answers = self.experiment_conditions.dataset.pick_random_problems(10)
 
         for i in range(len(problems)):
 
@@ -77,6 +77,9 @@ class Prompt:
             fitness += self.experiment_conditions.dataset.evaluate(answers[i], predicted_ans)
         
         fitness /= len(problems)
+
+        if fitness == 0:
+            fitness+=0.001
 
         return fitness 
 
