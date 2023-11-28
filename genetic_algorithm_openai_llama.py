@@ -10,6 +10,7 @@ import numpy as np
 import time
 from openai import OpenAI
 import os
+import fireworks.client
 
 from datasets import load_dataset
 def last_number(s):
@@ -41,8 +42,8 @@ def select_model(model_name):
         #OPENAI_API_KEY=""
         # Access the API key from the environment variable
         api_key = os.environ.get('OPENAI_API_KEY')
-        OPENAI_API_KEY=api_key
-        openai_client = OpenAI(api_key=api_key)
+        OPENAI_API_KEY=api_key        
+        #openai_client = OpenAI(api_key=api_key)
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
     elif model_name == "LLAMA-2":
         print("Model selected is LLAMA-2")
@@ -64,9 +65,11 @@ def select_model(model_name):
     elif model_name == "DAVINCI":
         api_key = os.environ.get('OPENAI_API_KEY')
         OPENAI_API_KEY=api_key
-        openai_client = OpenAI(api_key=api_key)
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
-        openai_client = OpenAI(api_key=OPENAI_API_KEY)
+    elif model_name == "FIREWORKS_LLAMA_13":
+        fireworks.client.api_key = os.environ.get('FIREWORKS_API_KEY')
+    elif model_name == "FIREWORKS_LLAMA_70":
+        fireworks.client.api_key =os.environ.get('FIREWORKS_API_KEY')
     else:
         print("Unsupported model")
     return lcpp_llm,openai_client
@@ -137,8 +140,9 @@ class  PopulationMember():
         prompt_template=prompt_template+f'''USER:Please answer this question
         '''
         for i in range(self.num_problems):
+            #prompt=prompt_template+problems[i]
             prompt=prompt_template+problems[i]+f''' Assistant:
-             '''
+            '''
             problem_with_prompt.append(prompt)
         return problem_with_prompt
     
@@ -211,6 +215,42 @@ class  PopulationMember():
                      print(response.choices[0].text)
                      generated_answer=last_number(response.choices[0].text)
                      time.sleep(25)
+                elif model_name == "FIREWORKS_LLAMA_13":
+                     done=False
+                     while not done:
+                        try:
+                               response = fireworks.client.Completion.create(
+                                      model="accounts/fireworks/models/llama-v2-13b",
+                                      prompt=prompt,
+                                      stream=False,
+                                      n=1,
+                                      max_tokens=1024,
+                                      temperature=0.1,
+                                      top_p=0.9, 
+                                  )
+                               print(response.choices[0].text)
+                               generated_answer=last_number(response.choices[0].text)
+                               done=True
+                        except:
+                               time.sleep(30)
+                elif model_name == "FIREWORKS_LLAMA_70":
+                     done=False
+                     while not done:
+                       try:
+                                completion = fireworks.client.ChatCompletion.create(
+                                    model="accounts/fireworks/models/llama-v2-70b-chat",
+                                    messages=[{"role": "system", "content": prompt}],
+                                    n=1,
+                                    max_tokens=800,
+                                    temperature=0.1,
+                                    top_p=0.9, 
+                                )
+                                done = True
+                                print(completion.choices[0].message.content)
+                                generated_answer=last_number(completion.choices[0].message.content)
+                       except:
+                                time.sleep(10)
+                      
                 else:
                      print("Unsupported model")        
                 print('Actual Answer is ',actual_answer)
@@ -366,10 +406,12 @@ class GeneticAlgo():
          self.population[idx[3]].gene=gene2
 
 
-model_name="GPT_3" 
+#model_name="GPT_3" 
 #model_name="DAVINCI"       
 #select_model("GPT_3")
 #select_model(model_name)
+model_name="FIREWORKS_LLAMA_13"
+#model_name="FIREWORKS_LLAMA_70"
 
 dataset = load_dataset("gsm8k", 'main')
 train_data = dataset["train"]
@@ -389,7 +431,7 @@ population_size=10
 carry_forward_next_gen=0.6
 num_generations=10
 #Enable to reuse problems for all generations
-[problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
+#[problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
 
 genetic=GeneticAlgo(population_size,carry_forward_next_gen)
 
@@ -403,7 +445,7 @@ start_time = time.time()
 fo = open("results.txt", "w")
 for generation in range(num_generations):
 #    Enable to use different problems each generation 
-#    [problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
+     [problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
      output_string='Generation '+str(generation)+'\n'
      fo.write(output_string)
      fo.flush()
