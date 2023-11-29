@@ -19,11 +19,12 @@ def remove_leading_spaces_and_lines(input_string):
     return output_string
 
 class Prompt:
-    def __init__(self, task, system_instruction, thinking_style, samples = []):
+    def __init__(self, task, system_instruction, thinking_style, previous_mutation):
         # System instruction is similar to thinking style
         self.task = task
         self.system_instruction = system_instruction
         self.thinking_style = thinking_style
+        self.mutation_trace = previous_mutation
         
         # Evaluation storage
         self.evaluated_indices = set()

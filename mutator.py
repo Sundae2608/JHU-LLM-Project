@@ -1,3 +1,4 @@
+from enum import Enum
 from model import Model
 from prompt import Prompt
 
@@ -23,6 +24,10 @@ def pick_random_variation(text):
     # Pick a random variation
     return random.choice(variations) if variations else ""
 
+class MutationType(Enum):
+    PROMPT_MUTATE = 1
+    CROSSOVER = 2
+
 class PromptMutator:
     def __init__(self, model: Model):
         self.model = model
@@ -31,6 +36,9 @@ class PromptMutator:
         mutate_prompt = f"{mutator}: \"{prompt.task}\".\nRewritten instructions:\n  1."
         generated_text = self.model.generate(mutate_prompt)
         variation = pick_random_variation("1. " + generated_text)
+        mutation_trace = (
+            MutationType.PROMPT_MUTATE, prompt
+        )
         return Prompt(variation.strip(), prompt.thinking_style, prompt.system_instruction)
 
     def random_mutate(self, prompt: Prompt, mutator):
@@ -45,22 +53,38 @@ class PromptMutator:
         gene1 = prompt1.gene()
         gene2 = prompt2.gene()
         
-        offspring1 = list(gene1)  # Create copies of parents
+        offspring1 = list(gene1)
         offspring2 = list(gene2)
-
-        for i in range(len(parent1)):
-            if random.random() < 0.5:  # 50% probability for each element
-                offspring1[i], offspring2[i] = offspring2[i], offspring1[i]
-
-        # Check if offspring genes are identical and swap elements if needed
-        while tuple(offspring1) == parent1 or tuple(offspring1) == parent2:
-            idx = random.randint(0, len(offspring1) - 1)
-            offspring1[idx], offspring2[idx] = offspring2[idx], offspring1[idx]
-
-        while tuple(offspring2) == parent1 or tuple(offspring2) == parent2:
-            idx = random.randint(0, len(offspring2) - 1)
-            offspring1[idx], offspring2[idx] = offspring2[idx], offspring1[idx]
-
-        return Prompt(offspring1[0], offspring1[1], offspring1[2]), Prompt(offspring2[0], offspring2[1], offspring2[2])
+        
+        def same_as_parent(indices):
+            return len(set(indices)) <= 1 
+        
+        while True:
+            new_gene_indices1 = []
+            new_gene_indices2 = []
+            for i in range(len(parent1)):
+                if random.random() < 0.5:  # 50% probability for each element
+                    new_gene_indices1.append(0)
+                    new_gene_indices2.append(1)
+                else:
+                    new_gene_indices1.append(1)
+                    new_gene_indices2.append(0)
+            if not same_as_parent(new_gene_indices1):
+                break
+                
+        offspring1 = []
+        offspring2 = []
+        for i in range(len(new_gene_indices1)):
+            selected = new_gene_indices1[i]
+            if selected == 0:
+                offspring1.append(gene1[i])
+                offspring2.append(gene2[i])
+            else:
+                offspring1.append(gene2[i])
+                offspring2.append(gene1[i])
+                
+        mutation_trace_1 = (MutationType.CROSSOVER, prompt1, prompt2, tuple(new_gene_indices1))
+        mutation_trace_2 = (MutationType.CROSSOVER, prompt1, prompt2, tuple(new_gene_indices2))
+        return Prompt(offspring1[0], offspring1[1], offspring1[2], mutation_trace_1), Prompt(offspring2[0], offspring2[1], offspring2[2], mutation_trace_2)
         
         
