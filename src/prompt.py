@@ -24,11 +24,11 @@ class Prompt:
 
     def encode_prompt(self):
 
-        num_examples_encoded = encode_to_binary(value=self.num_examples, bits_to_use=9)
+        num_examples_encoded = encode_to_binary(value=self.num_examples, bits_to_use=10)
 
-        sys_instruction_encoded = encode_to_binary(value=self.sys_prompt_idx, bits_to_use=9)
+        sys_instruction_encoded = encode_to_binary(value=self.sys_prompt_idx, bits_to_use=10)
 
-        instruction_encoded = encode_to_binary(value=self.instruction_idx, bits_to_use=9)
+        instruction_encoded = encode_to_binary(value=self.instruction_idx, bits_to_use=10)
 
         return np.concatenate((num_examples_encoded, sys_instruction_encoded, instruction_encoded))
     
@@ -37,9 +37,9 @@ class Prompt:
         
 
         # Split the array back into its original components
-        num_examples_encoded = encoded_array[:9]
-        sys_instruction_encoded = encoded_array[9:18]
-        instruction_encoded = encoded_array[18:]
+        num_examples_encoded = encoded_array[:10]
+        sys_instruction_encoded = encoded_array[10:20]
+        instruction_encoded = encoded_array[20:]
 
         # Decode 
         num_examples = decode_from_binary(num_examples_encoded)

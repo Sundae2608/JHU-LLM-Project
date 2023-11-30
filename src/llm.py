@@ -64,7 +64,7 @@ class LLM:
                     time.sleep(10)
             return response.choices[0].message.content
         
-        elif self.provider == 'fireworks' and self.model in ['llama-v2-70b-chat', 'falcon-7b', 'mistral-7b-instruct-4k']:
+        elif self.provider == 'fireworks' and self.model in ['llama-v2-70b-chat', 'falcon-7b', 'mistral-7b-instruct-4k', 'llama-v2-13b-chat']:
             done=False
 
             while not done:

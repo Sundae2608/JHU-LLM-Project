@@ -38,9 +38,9 @@ def plot_gene_frequency(results, cutoff):
     # First subplot - Bar plot for array1
     plt.subplot(1, 3, 1)
     plt.bar(numbers, counts, color='skyblue')
-    plt.title('Bar Plot of Array 1')
+    plt.title('System Prompt Index')
     plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.ylabel('Frequency')
 
     counts = np.bincount(instruct_genes)
     numbers = np.arange(len(counts))
@@ -48,9 +48,9 @@ def plot_gene_frequency(results, cutoff):
     # Second subplot - Line plot for array2
     plt.subplot(1, 3, 2)
     plt.bar(numbers, counts, color='skyblue')
-    plt.title('Line Plot of Array 2')
+    plt.title('Instruction Prompt index')
     plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.ylabel('Frequency')
 
     counts = np.bincount(num_examples_genes)
     numbers = np.arange(len(counts))
@@ -58,9 +58,9 @@ def plot_gene_frequency(results, cutoff):
     # Third subplot - Scatter plot for array3
     plt.subplot(1, 3, 3)
     plt.bar(numbers, counts, color='skyblue')
-    plt.title('Scatter Plot of Array 3')
-    plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.title('Number of Examples')
+    plt.xlabel('Num Examples')
+    plt.ylabel('Frequency')
 
     # Displaying the plot
     plt.tight_layout()
@@ -124,9 +124,9 @@ def plot_gene_frequency_per_gen(results, gen):
     # First subplot - Bar plot for array1
     plt.subplot(1, 3, 1)
     plt.bar(numbers, counts, color='skyblue')
-    plt.title('Bar Plot of Array 1')
+    plt.title('System Prompt Index')
     plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.ylabel('Frequency')
 
     counts = np.bincount(instruct_genes)
     numbers = np.arange(len(counts))
@@ -134,9 +134,9 @@ def plot_gene_frequency_per_gen(results, gen):
     # Second subplot - Line plot for array2
     plt.subplot(1, 3, 2)
     plt.bar(numbers, counts, color='skyblue')
-    plt.title('Line Plot of Array 2')
+    plt.title('Instruction prompt Index')
     plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.ylabel('Frequency')
 
     counts = np.bincount(num_examples_genes)
     numbers = np.arange(len(counts))
@@ -144,10 +144,27 @@ def plot_gene_frequency_per_gen(results, gen):
     # Third subplot - Scatter plot for array3
     plt.subplot(1, 3, 3)
     plt.bar(numbers, counts, color='skyblue')
-    plt.title('Scatter Plot of Array 3')
-    plt.xlabel('Index')
-    plt.ylabel('Value')
+    plt.title('Number of Instructions')
+    plt.xlabel('Num Instructions')
+    plt.ylabel('Frequency')
 
     # Displaying the plot
     plt.tight_layout()
     plt.show()
+
+
+def best_prompts(results, exp_conditions, cutoff):
+
+    generations = len(results.keys()) - 1
+    individuals = len(results[0].keys())
+
+    for i in range(generations):
+        for j in range(individuals):
+            if results[i][j]['fitness'] >= cutoff:
+
+                print('Generation:', i)
+                print('Sys Prompt:',exp_conditions['sys_prompts'][results[i][j]['sys_prompt_idx']])
+                print('Inst Prompt:',exp_conditions['instructions'][results[i][j]['instruction_idx']])
+                print('Num Exp:', results[i][j]['num_examples'])
+                print('---------------------------------------------------')
+                print()

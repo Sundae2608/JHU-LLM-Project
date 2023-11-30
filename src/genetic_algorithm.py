@@ -91,8 +91,8 @@ class GeneticAlgorithm:
             i = np.random.randint(len(self.experiment_conditions.prompt_mutators))
             j = np.random.randint(len(self.experiment_conditions.prompt_mutators))
 
-            inst_child_1_idx = decode_from_binary(child_1[18:]) 
-            inst_child_2_idx = decode_from_binary(child_2[18:])
+            inst_child_1_idx = decode_from_binary(child_1[20:]) 
+            inst_child_2_idx = decode_from_binary(child_2[20:])
 
             inst_child_1_idx = len(self.experiment_conditions.instructions)-1 if inst_child_1_idx >= len(self.experiment_conditions.instructions) else inst_child_1_idx
             inst_child_2_idx = len(self.experiment_conditions.instructions)-1 if inst_child_2_idx >= len(self.experiment_conditions.instructions) else inst_child_2_idx
@@ -105,11 +105,11 @@ class GeneticAlgorithm:
             self.experiment_conditions.instructions.append(new_instruct_child_1)
             self.experiment_conditions.instructions.append(new_instruct_child_2)
 
-            encoded_new_instruct_1 = encode_to_binary(len(self.experiment_conditions.instructions)-2, 9)
-            encoded_new_instruct_2 = encode_to_binary(len(self.experiment_conditions.instructions)-1, 9)
+            encoded_new_instruct_1 = encode_to_binary(len(self.experiment_conditions.instructions)-2, 10)
+            encoded_new_instruct_2 = encode_to_binary(len(self.experiment_conditions.instructions)-1, 10)
 
-            child_1 = np.concatenate((child_1[0:18], encoded_new_instruct_1))
-            child_2 = np.concatenate((child_2[0:18], encoded_new_instruct_2))
+            child_1 = np.concatenate((child_1[0:20], encoded_new_instruct_1))
+            child_2 = np.concatenate((child_2[0:20], encoded_new_instruct_2))
 
         else:
 
