@@ -88,38 +88,38 @@ class  PopulationMember():
                                      'Explain your solution as if you were guiding students through the problem as a math teacher',
                                      'Employ the strategies and clarity of explanation expected of a mathematics instructor in your response',
                                      'Solve the question while considering the method a math teacher would employ',
-                                'Think like a mathematics professor and solve this problem.',
-                                'Approach this problem with the precision and depth expected of a mathematics professor.',
-                                'Demonstrate your mastery by solving this problem through the lens of a mathematics professor',
-                                'Think deeply and analytically like a mathematics professor to resolve this problem.',
-                                'Utilize advanced mathematical theory and reasoning in your solution, akin to a math professor perspective.',
-                                'Approach this problem with the expertise and insight expected of a mathematics professor.',
-                                'Solve the problem with the rigor and sophistication typical of a mathematics professors approach.',
-                                'You are a helpful math solving assistant and helping someone with basic math skills.'
+                                     'Think like a mathematics professor and solve this problem.',
+                                     'Approach this problem with the precision and depth expected of a mathematics professor.',
+                                     'Demonstrate your mastery by solving this problem through the lens of a mathematics professor',
+                                     'Think deeply and analytically like a mathematics professor to resolve this problem.',
+                                     'Utilize advanced mathematical theory and reasoning in your solution, akin to a math professor perspective.',
+                                     'Approach this problem with the expertise and insight expected of a mathematics professor.',
+                                     'Solve the problem with the rigor and sophistication typical of a mathematics professors approach.',
+                                     'You are a helpful math solving assistant and helping someone with basic math skills.'
                               ])
 
         self.instructions = np.array(['Solve the math word problem, giving your answer as an arabic numeral.',
                                       'Provide the numerical solution to the math word problem using Arabic numerals.',
                                       'Find the solution and present it in the form of a numerical value written in Arabic numerals.',
                                       'Provide the solution to the word problem as a numerical figure in Arabic numerals',
-                               'Apply fundamental mathematical principles to solve the problem, and provide a clear numeric answer.',
-                               'Explain the problem and its solution using simple mathematical terms suitable for beginners.',
-                               'Present the problem and its resolution in a way that is easily graspable by those with elementary math understanding',
-                               'Simplify the problem explanation and solution for individuals with basic mathematical understanding.',
-                               'Adopt a beginner-friendly teaching style to elucidate the problem and its solution for individuals with limited math expertise.', 
-                               'Adjust your teaching approach to elucidate the problem and answer for those with fundamental math comprehension',
-                               'Teach the problem and its resolution as if guiding someone with elementary math skills.',
-                               'Explain the problem and its solution using simple mathematical terms suitable for beginners.',
-                               'Present the problem and solution in a manner accessible to someone with foundational math understanding.',
-                               'Adopt a beginner-friendly teaching style to elucidate the problem and its solution for individuals with limited math expertise.',
-                               'Adapt a teaching approach, explaining the problem and solution as if educating someone with basic mathematical knowledge.'
+                                      'Apply fundamental mathematical principles to solve the problem, and provide a clear numeric answer.',
+                                      'Explain the problem and its solution using simple mathematical terms suitable for beginners.',
+                                      'Present the problem and its resolution in a way that is easily graspable by those with elementary math understanding',
+                                      'Simplify the problem explanation and solution for individuals with basic mathematical understanding.',
+                                      'Adopt a beginner-friendly teaching style to elucidate the problem and its solution for individuals with limited math expertise.', 
+                                      'Adjust your teaching approach to elucidate the problem and answer for those with fundamental math comprehension',
+                                      'Teach the problem and its resolution as if guiding someone with elementary math skills.',
+                                      'Explain the problem and its solution using simple mathematical terms suitable for beginners.',
+                                      'Present the problem and solution in a manner accessible to someone with foundational math understanding.',
+                                      'Adopt a beginner-friendly teaching style to elucidate the problem and its solution for individuals with limited math expertise.',
+                                      'Adapt a teaching approach, explaining the problem and solution as if educating someone with basic mathematical knowledge.'
                                 ])
         self.max_num_examples=max_num_examples
         self.num_problems=problems_per_population_member
         self.gene=[]
         
     
-    def create_prompts(self,problems,dataset):
+    def create_prompts_old(self,problems,dataset):
         self.prompt_template_base=f'''
 
           SYSTEM: '''
@@ -144,6 +144,23 @@ class  PopulationMember():
             prompt=prompt_template+problems[i]+f''' Assistant:
             '''
             problem_with_prompt.append(prompt)
+        return problem_with_prompt
+    
+    def create_prompts(self,problems,dataset):
+        sys_prompt_idx=np.random.randint(len(self.sys_prompts))
+        self.gene.append(sys_prompt_idx)
+        instruction_prompt_idx=np.random.randint(len(self.instructions))
+        self.gene.append(instruction_prompt_idx)
+        problem_with_prompt=[]
+
+        self.example_prompt=self.add_examples(dataset)
+        for i in range(self.num_problems):
+            #prompt=prompt_template+problems[i]
+            prompt=[{"role": "system", "content":self.sys_prompts[sys_prompt_idx] },
+                                                                           {"role": "user", "content": self.instructions[instruction_prompt_idx] + '\n' + self.example_prompt + '\n' + problems[i]}
+                                                                           ],
+            problem_with_prompt.append(prompt)
+        
         return problem_with_prompt
     
     def bring_examples(self, dataset, max_num_examples):
@@ -219,31 +236,31 @@ class  PopulationMember():
                      done=False
                      while not done:
                         try:
-                               response = fireworks.client.Completion.create(
-                                      model="accounts/fireworks/models/llama-v2-13b",
-                                      prompt=prompt,
+                               completion = fireworks.client.ChatCompletion.create(
+                                      model="accounts/fireworks/models/llama-v2-13b-chat",
+                                      messages=prompt[0],
                                       stream=False,
                                       n=1,
                                       max_tokens=1024,
                                       temperature=0.1,
-                                      top_p=0.9, 
+                                      top_p=0.9 
                                   )
-                               print(response.choices[0].text)
-                               generated_answer=last_number(response.choices[0].text)
+                               print(completion.choices[0].message.content)
+                               generated_answer=last_number(completion.choices[0].message.content)
                                done=True
                         except:
-                               time.sleep(30)
+                               time.sleep(10)
                 elif model_name == "FIREWORKS_LLAMA_70":
                      done=False
                      while not done:
                        try:
                                 completion = fireworks.client.ChatCompletion.create(
                                     model="accounts/fireworks/models/llama-v2-70b-chat",
-                                    messages=[{"role": "system", "content": prompt}],
+                                    messages=prompt[0],
                                     n=1,
                                     max_tokens=800,
                                     temperature=0.1,
-                                    top_p=0.9, 
+                                    top_p=0.9 
                                 )
                                 done = True
                                 print(completion.choices[0].message.content)
@@ -318,21 +335,14 @@ class  PopulationMember():
     def reconstruct_prompt(self,problems,dataset):        
         sys_prompt_idx=self.gene[0]
         instruction_prompt_idx=self.gene[1]
-        prompt_template=self.prompt_template_base+self.sys_prompts[sys_prompt_idx]+f'''
-        '''
-        prompt_template=prompt_template+self.prompt_template_base+self.instructions[instruction_prompt_idx]+f'''
-        '''
         problem_with_prompt=[]
 
         self.example_prompt=self.reconstruct_examples(dataset)
-        #First add example to prompt_template
-        prompt_template=prompt_template+self.example_prompt
-        
-        prompt_template=prompt_template+f'''USER:Please answer this question
-        '''
+       
         for i in range(self.num_problems):
-            prompt=prompt_template+problems[i]+f''' Assistant:
-             '''
+            prompt=[{"role": "system", "content":self.sys_prompts[sys_prompt_idx] },
+                                                                           {"role": "user", "content": self.instructions[instruction_prompt_idx] + '\n' + self.example_prompt + '\n' + problems[i]}
+                                                                           ],
             problem_with_prompt.append(prompt)
         return problem_with_prompt
   
