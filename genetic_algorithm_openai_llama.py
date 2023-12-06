@@ -200,11 +200,12 @@ class  PopulationMember():
                 print(prompt)
                 if model_name == "GPT_3":
                      print("Model being evaluated  is GPT_3")
+                     prompt_str=''.join(str(e) for e in prompt[0])
                      response=openai_client.completions.create(
                                          model="gpt-3.5-turbo-instruct",
-                                         prompt=prompt,
+                                         prompt=prompt_str,
                                          temperature=1,
-                                         max_tokens=1024,
+                                         max_tokens=2048,
                                          top_p=1,
                                          frequency_penalty=0,
                                          presence_penalty=0
@@ -349,11 +350,14 @@ class  PopulationMember():
 class GeneticAlgo():
      def __init__(self,population_size,carry_forward_next_gen):
          self.population_size=population_size
-         self.fitness_score=np.zeros((population_size,1), dtype=float)
+         #self.fitness_score=np.zeros((population_size,1), dtype=float)
          self.population=[]
          self.carry_forward_next_gen=carry_forward_next_gen
          #Garbage value of fitness score to test w/o calling API
-         self.fitness_score=[20.0,30.0,10.0,40.0,0.0,60.0,20.0,80.0,50.0,70.0]
+         #self.fitness_score=[20.0,30.0,10.0,40.0,0.0,60.0,20.0,80.0,50.0,70.0]
+         self.fitness_score=np.random.rand(population_size,1)*100
+         self.problems_solved=np.zeros((population_size,1), dtype=int)
+         self.num_corrected=np.zeros((population_size,1), dtype=int)
     
      def add_member(self,member):
          self.population.append(member)
@@ -365,6 +369,8 @@ class GeneticAlgo():
              else:
                 problems_prompt=self.population[i].reconstruct_prompt(problems,dataset)
              evaluations=self.population[i].evaluate_problems(problems_prompt,answers,model_name,lcpp_llm,openai_client)
+             self.problems_solved+=len(evaluations)
+             self.num_corrected+=np.sum(evaluations)
              accuracy=np.sum(evaluations)/len(evaluations)*100
              self.fitness_score[i]=accuracy
      
@@ -382,7 +388,8 @@ class GeneticAlgo():
          #determine which members of the population had low fitness score 
          #and hence eliminated
          #idx = np.argpartition(self.fitness_score,number_kill)
-         idx = np.argsort(self.fitness_score)
+         #idx = np.argsort(self.fitness_score)
+         idx = np.argsort(np.transpose(self.fitness_score))[0]
          print('Index ',idx)
          print('Population Members being eliminated are ',idx[0:number_kill])
          output_string='Population Members being eliminated are '+str(idx[0:number_kill])
@@ -416,11 +423,11 @@ class GeneticAlgo():
          self.population[idx[3]].gene=gene2
 
 
-#model_name="GPT_3" 
+model_name="GPT_3" 
 #model_name="DAVINCI"       
 #select_model("GPT_3")
 #select_model(model_name)
-model_name="FIREWORKS_LLAMA_13"
+#model_name="FIREWORKS_LLAMA_13"
 #model_name="FIREWORKS_LLAMA_70"
 
 dataset = load_dataset("gsm8k", 'main')
@@ -434,7 +441,7 @@ print('Length of Test Dataset is ',len(test_data))
 lcpp_llm,openai_client=select_model(model_name)
 
 problems_per_population_member=10
-max_num_examples=3
+max_num_examples=8
 population_size=10
 #Indicates the fraction of the population that will survive to the next generation
 #unfortunately hard coded for now
@@ -461,7 +468,7 @@ for generation in range(num_generations):
      fo.flush()
      genetic.compute_fitness_score(generation,problems,dataset)
      average_accuracy=np.average(genetic.fitness_score)
-     print('Accuracy of  population is ',genetic.fitness_score,'%')
+     print('Accuracy of  population is ',np.transpose(genetic.fitness_score),'%')
 
      output_string='Accuracy of  population is '+str(genetic.fitness_score)+'%'+' Average Accuracy is '+str(average_accuracy)+'\n'
      fo.write(output_string)
