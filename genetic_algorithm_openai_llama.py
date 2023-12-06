@@ -11,6 +11,7 @@ import time
 from openai import OpenAI
 import os
 import fireworks.client
+import matplotlib.pyplot as plt
 
 from datasets import load_dataset
 def last_number(s):
@@ -356,8 +357,16 @@ class GeneticAlgo():
          #Garbage value of fitness score to test w/o calling API
          #self.fitness_score=[20.0,30.0,10.0,40.0,0.0,60.0,20.0,80.0,50.0,70.0]
          self.fitness_score=np.random.rand(population_size,1)*100
-         self.problems_solved=np.zeros((population_size,1), dtype=int)
-         self.num_corrected=np.zeros((population_size,1), dtype=int)
+         self.problems_solved=np.zeros((population_size,1), dtype=float)
+         self.num_correct=np.zeros((population_size,1), dtype=float)
+         
+     def init_statistics(self):     
+         self.num_sys_prompts=len(self.population[0].sys_prompts)
+         self.sys_prompt_histogram= np.zeros((self.num_sys_prompts,1),dtype=int)
+         self.num_instructions=len(self.population[0].instructions)
+         self.instr_prompt_histogram= np.zeros((self.num_instructions,1),dtype=int)
+         self.max_num_examples=self.population[0].max_num_examples
+         self.example_prompt_histogram= np.zeros((self.max_num_examples,1),dtype=int)
     
      def add_member(self,member):
          self.population.append(member)
@@ -369,10 +378,19 @@ class GeneticAlgo():
              else:
                 problems_prompt=self.population[i].reconstruct_prompt(problems,dataset)
              evaluations=self.population[i].evaluate_problems(problems_prompt,answers,model_name,lcpp_llm,openai_client)
-             self.problems_solved+=len(evaluations)
-             self.num_corrected+=np.sum(evaluations)
-             accuracy=np.sum(evaluations)/len(evaluations)*100
+             self.problems_solved[i]+=len(evaluations)
+             self.num_correct[i]+=np.sum(evaluations)
+             accuracy=self.num_correct[i]/self.problems_solved[i]*100 
+             #accuracy=np.sum(evaluations)/len(evaluations)*100
              self.fitness_score[i]=accuracy
+     
+     def  update_stats(self):
+         for i in range(self.population_size):
+             cur_gene=self.population[i].gene
+             self.sys_prompt_histogram[cur_gene[0]]+=1
+             self.instr_prompt_histogram[cur_gene[0]]+=1
+             self.example_prompt_histogram[cur_gene[0]]+=1
+             
      
      def crossover(self,parent1,parent2):
          #Splice point can be one of the first 
@@ -404,12 +422,18 @@ class GeneticAlgo():
          mutation_idx1=np.random.randint(self.population_size)
          self.population[idx[0]]=self.population[mutation_idx1]
          self.population[idx[0]].mutate_gene()
+         # Zero out the accuracy statistics  
+         self.problems_solved[idx[0]]=0
+         self.num_correct[idx[0]]=0
          output_string='Mutating member '+str(mutation_idx1)+' and updating member '+str(idx[0])+'\n'
          fo.write(output_string)
          fo.flush()
          mutation_idx2=np.random.randint(self.population_size)
          self.population[idx[1]]=self.population[mutation_idx2]
          self.population[idx[1]].mutate_gene()
+         # Zero out the accuracy statistics  
+         self.problems_solved[idx[1]]=0
+         self.num_correct[idx[1]]=0
          output_string='Mutating member '+str(mutation_idx2)+' and updating member '+str(idx[1])+'\n'
          fo.write(output_string)
          fo.flush()
@@ -421,14 +445,50 @@ class GeneticAlgo():
          gene1,gene2=self.crossover(crossover_parent1,crossover_parent2)
          self.population[idx[2]].gene=gene1
          self.population[idx[3]].gene=gene2
+         # Zero out the accuracy statistics  
+         self.problems_solved[idx[2]]=0
+         self.num_correct[idx[2]]=0
+         self.problems_solved[idx[3]]=0
+         self.num_correct[idx[3]]=0
 
-
-model_name="GPT_3" 
+def generate_plots(genetic,num_generations):
+         fig, axs = plt.subplots(2, 3)
+         x = np.linspace(0, genetic.num_sys_prompts, 1)
+         axs[0, 0].scatter(x, genetic.sys_prompt_histogram)
+         axs[0,0].xlabel('Sys Prompt Index')
+         axs[0,0].ylabel('Frequency')
+         axs[0,0].title('System Prompt Histogram')
+         
+         x = np.linspace(0, genetic.num_instructions, 1)
+         axs[0, 1].scatter(x, genetic.instr_prompt_histogram)
+         axs[0,1].xlabel('Instruction Prompt Index')
+         axs[0,1].ylabel('Frequency')
+         axs[0,1].title('Instruction Prompt Histogram')
+         
+         x = np.linspace(0, genetic.max_num_examples, 1)
+         axs[0, 2].scatter(x, genetic.example_prompt_histogram)
+         axs[0,2].xlabel('Num Examples in Prompt ')
+         axs[0,2].ylabel('Frequency')
+         axs[0,2].title('Examples in Prompt Histogram')
+         
+         x= np.linspace(0, genetic.num_generations, 1)
+         axs[1,0].plot(x,avg_gen , label = "Average") 
+         axs[1,0].xlabel('Generation ')
+         axs[1,0].ylabel('Average Accuaracy across population')
+         
+         x= np.linspace(0, genetic.num_generations, 1)
+         axs[1,0].plot(x,stddev_gen , label = "Std Dev") 
+         axs[1,0].xlabel('Generation ')
+         axs[1,0].ylabel('Std deviation Accuaracy')
+         axs[1,0].title('Standard Deviation of accuracy across population')
+         plt.show()
+        
+#model_name="GPT_3" 
 #model_name="DAVINCI"       
 #select_model("GPT_3")
 #select_model(model_name)
 #model_name="FIREWORKS_LLAMA_13"
-#model_name="FIREWORKS_LLAMA_70"
+model_name="FIREWORKS_LLAMA_70"
 
 dataset = load_dataset("gsm8k", 'main')
 train_data = dataset["train"]
@@ -447,6 +507,8 @@ population_size=10
 #unfortunately hard coded for now
 carry_forward_next_gen=0.6
 num_generations=10
+stddev_gen=np.zeros((num_generations,1),dtype=float)
+avg_gen=np.zeros((num_generations,1),dtype=float)
 #Enable to reuse problems for all generations
 #[problems,answers]=bring_problems_to_solve(dataset,problems_per_population_member)
 
@@ -457,6 +519,7 @@ for i in range(population_size):
        member=PopulationMember(problems_per_population_member,max_num_examples)
        genetic.add_member(member)
 
+genetic.init_statistics()
 # Start time
 start_time = time.time()
 fo = open("results.txt", "w")
@@ -467,16 +530,21 @@ for generation in range(num_generations):
      fo.write(output_string)
      fo.flush()
      genetic.compute_fitness_score(generation,problems,dataset)
-     average_accuracy=np.average(genetic.fitness_score)
+     avg_gen[generation]=np.average(genetic.fitness_score)
      print('Accuracy of  population is ',np.transpose(genetic.fitness_score),'%')
-
-     output_string='Accuracy of  population is '+str(genetic.fitness_score)+'%'+' Average Accuracy is '+str(average_accuracy)+'\n'
+     stddev_gen[generation]=np.std(genetic.fitness_score)
+     output_string='Accuracy of  population is '+str(np.transpose(genetic.fitness_score))+'%'+' Average Accuracy is '+str(avg_gen[generation])+'\n'
+     fo.write(output_string)
+     output_string='Number Solved is '+str(np.transpose(genetic.problems_solved))+'\n'
+     fo.write(output_string)
+     output_string='Number correct is '+str(np.transpose(genetic.num_correct))+'\n'
      fo.write(output_string)
      fo.flush()
      genetic.select_next_population()    
 # End time
 end_time = time.time()
 fo.close()
+generate_plots(genetic,num_generations)
 
 # Calculate elapsed time
 elapsed_time = end_time - start_time
