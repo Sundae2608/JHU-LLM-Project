@@ -453,42 +453,44 @@ class GeneticAlgo():
 
 def generate_plots(genetic,num_generations):
          fig, axs = plt.subplots(2, 3)
-         x = np.linspace(0, genetic.num_sys_prompts, 1)
+         
+         x = np.linspace(0, genetic.num_sys_prompts,genetic.num_sys_prompts)
          axs[0, 0].scatter(x, genetic.sys_prompt_histogram)
-         axs[0,0].xlabel('Sys Prompt Index')
-         axs[0,0].ylabel('Frequency')
-         axs[0,0].title('System Prompt Histogram')
+         axs[0,0].set_xlabel('Sys Prompt Index')
+         axs[0,0].set_ylabel('Frequency')
+         axs[0,0].set_title('System Prompt')
          
-         x = np.linspace(0, genetic.num_instructions, 1)
+         x = np.linspace(0, genetic.num_instructions, genetic.num_instructions)
          axs[0, 1].scatter(x, genetic.instr_prompt_histogram)
-         axs[0,1].xlabel('Instruction Prompt Index')
-         axs[0,1].ylabel('Frequency')
-         axs[0,1].title('Instruction Prompt Histogram')
+         axs[0,1].set_xlabel('Instruction Prompt Index')
+         #axs[0,1].set_ylabel('Frequency')
+         axs[0,1].set_title('Instruction Prompt')
          
-         x = np.linspace(0, genetic.max_num_examples, 1)
+         x = np.linspace(0, genetic.max_num_examples, genetic.max_num_examples)
          axs[0, 2].scatter(x, genetic.example_prompt_histogram)
-         axs[0,2].xlabel('Num Examples in Prompt ')
-         axs[0,2].ylabel('Frequency')
-         axs[0,2].title('Examples in Prompt Histogram')
+         axs[0,2].set_xlabel('Num Examples in Prompt ')
+         #axs[0,2].set_ylabel('Frequency')
+         axs[0,2].set_title('Examples in Prompt')
          
-         x= np.linspace(0, genetic.num_generations, 1)
+         x= np.linspace(0, num_generations,num_generations)
          axs[1,0].plot(x,avg_gen , label = "Average") 
-         axs[1,0].xlabel('Generation ')
-         axs[1,0].ylabel('Average Accuaracy across population')
+         axs[1,0].set_xlabel('Generation ')
+         axs[1,0].set_ylabel('Average Accuaracy ')
+         axs[1,0].set_title('Average Accuaracy ')
          
-         x= np.linspace(0, genetic.num_generations, 1)
-         axs[1,0].plot(x,stddev_gen , label = "Std Dev") 
-         axs[1,0].xlabel('Generation ')
-         axs[1,0].ylabel('Std deviation Accuaracy')
-         axs[1,0].title('Standard Deviation of accuracy across population')
+         x= np.linspace(0, num_generations, num_generations)
+         axs[1,1].plot(x,stddev_gen , label = "Std Dev") 
+         axs[1,1].set_xlabel('Generation ')
+         axs[1,1].set_ylabel('Std deviation Accuaracy')
+         axs[1,1].set_title('Standard Deviation of accuracy')
          plt.show()
         
-#model_name="GPT_3" 
+model_name="GPT_3" 
 #model_name="DAVINCI"       
 #select_model("GPT_3")
 #select_model(model_name)
 #model_name="FIREWORKS_LLAMA_13"
-model_name="FIREWORKS_LLAMA_70"
+#model_name="FIREWORKS_LLAMA_70"
 
 dataset = load_dataset("gsm8k", 'main')
 train_data = dataset["train"]
@@ -540,6 +542,7 @@ for generation in range(num_generations):
      output_string='Number correct is '+str(np.transpose(genetic.num_correct))+'\n'
      fo.write(output_string)
      fo.flush()
+     genetic.update_stats()
      genetic.select_next_population()    
 # End time
 end_time = time.time()
