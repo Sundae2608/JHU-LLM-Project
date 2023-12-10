@@ -19,11 +19,13 @@ def remove_leading_spaces_and_lines(input_string):
     return output_string
 
 class Prompt:
-    def __init__(self, task, system_instruction, thinking_style, previous_mutation):
+    def __init__(self, task, system_instruction, thinking_style, num_examples, gene_id, previous_mutation):
         # System instruction is similar to thinking style
         self.task = task
         self.system_instruction = system_instruction
         self.thinking_style = thinking_style
+        self.num_examples = num_examples
+        self.gene_id = gene_id
         self.mutation_trace = previous_mutation
         
         # Evaluation storage
@@ -35,7 +37,7 @@ class Prompt:
         """
         Return a new prompt but essentially reset the scoring of it
         """
-        return Prompt(self.task, self.system_instruction, self.thinking_style)
+        return Prompt(self.task, self.system_instruction, self.thinking_style, self.num_examples, self.gene_id, self.previous_mutation)
         
     def add_evaluation(self, index, correct, score):
         if index in self.evaluated_indices:
@@ -50,7 +52,7 @@ class Prompt:
     def get_accuracy(self):
         return self.num_correct / len(self.evaluated_indices)
 
-    def zero_shot_prompt(self, question):
+    def _zero_shot_prompt(self, question):
         prompt = f"""
         SYSTEM: {self.system_instruction}
         USER: {self.thinking_style}, {self.task}.
@@ -59,7 +61,7 @@ class Prompt:
         """
         return remove_leading_spaces_and_lines(prompt)
 
-    def one_shot_prompt(self, question, train_example):
+    def _one_shot_prompt(self, question, train_example):
         example_q = train_example["question"]
         example_a = train_example["answer"]
         
@@ -73,7 +75,7 @@ class Prompt:
         """
         return remove_leading_spaces_and_lines(prompt)
 
-    def few_shot_prompt(self, question, train_examples, n=3):
+    def _few_shot_prompt(self, question, train_examples, n=3):
         n = min(n, len(train_examples))  # Ensure n doesn't exceed available examples
         sampled_train_indices = random.sample(range(len(train_examples)), n)
         sampled_train_examples = [(train_examples[i]["question"], train_examples[i]["answer"]) for i in sampled_train_indices]
@@ -87,12 +89,19 @@ class Prompt:
             ANSWER: """
         return remove_leading_spaces_and_lines(prompt)
     
+    def get_prompt(self, question, train_examples):
+        if self.num_examples == 0:
+            return self._zero_shot_prompt(question)
+        elif self.num_examples >= 1:
+            return self._few_shot_prompt(question, train_examples, self.num_examples)
+    
     def gene(self):
         return (
             self.task,
             self.system_instruction,
-            self.thinking_style
+            self.thinking_style,
+            self.num_examples,
         )
     
     def __repr__(self):
-        return self.task
+        return f"({self.task[:20]:20} - {self.system_instruction[:20]:20} - {self.thinking_style[:20]:20} - {self.num_examples})"

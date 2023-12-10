@@ -29,17 +29,29 @@ class MutationType(Enum):
     CROSSOVER = 2
 
 class PromptMutator:
-    def __init__(self, model: Model):
+    def __init__(self, model: Model, max_num_examples, num_examples_mutate_prob, curr_gene_id):
         self.model = model
+        self.max_num_examples = max_num_examples
+        self.num_examples_mutate_prob = num_examples_mutate_prob
+        self.curr_gene_id = curr_gene_id
+    
+    def next_gene_id(self):
+        return_gene = self.curr_gene_id
+        self.curr_gene_id += 1
+        return return_gene
         
     def _mutate_prompt1(self, prompt: Prompt, mutator):
         mutate_prompt = f"{mutator}: \"{prompt.task}\".\nRewritten instructions:\n  1."
         generated_text = self.model.generate(mutate_prompt)
         variation = pick_random_variation("1. " + generated_text)
+        if random.uniform(0, 1) < self.num_examples_mutate_prob:
+            mutated_num_examples = random.randint(0, self.max_num_examples)
+        else:
+            mutated_num_examples = prompt.num_examples
         mutation_trace = (
-            MutationType.PROMPT_MUTATE, prompt
+            MutationType.PROMPT_MUTATE, prompt, mutated_num_examples
         )
-        return Prompt(variation.strip(), prompt.thinking_style, prompt.system_instruction)
+        return Prompt(variation.strip(), prompt.system_instruction, prompt.thinking_style, mutated_num_examples, self.next_gene_id(), mutation_trace)
 
     def random_mutate(self, prompt: Prompt, mutator):
         mutation_methods = [self._mutate_prompt1]
@@ -85,6 +97,6 @@ class PromptMutator:
                 
         mutation_trace_1 = (MutationType.CROSSOVER, prompt1, prompt2, tuple(new_gene_indices1))
         mutation_trace_2 = (MutationType.CROSSOVER, prompt1, prompt2, tuple(new_gene_indices2))
-        return Prompt(offspring1[0], offspring1[1], offspring1[2], mutation_trace_1), Prompt(offspring2[0], offspring2[1], offspring2[2], mutation_trace_2)
+        return Prompt(offspring1[0], offspring1[1], offspring1[2], offspring1[3], self.next_gene_id(), mutation_trace_1), Prompt(offspring2[0], offspring2[1], offspring2[2], offspring2[3], self.next_gene_id(), mutation_trace_2)
         
         

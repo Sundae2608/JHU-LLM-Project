@@ -1,3 +1,4 @@
+import fireworks
 import openai
 import os
 from transformers import pipeline
@@ -21,7 +22,7 @@ class Model:
         self.model_name = model_name
         self.model_file = model_file
         self.model_type = model_type
-        self.api_key = os.getenv("OPENAI_KEY")
+        self.api_key = None
         self.pipeline = None
         self.ctransformer_llm = None
 
@@ -30,6 +31,11 @@ class Model:
             if not self.api_key:
                 raise ValueError("API key is required for OpenAI provider")
             openai.api_key = os.getenv("OPENAI_KEY")
+        if self.provider == 'fireworks':
+            # Initialize OpenAI API with the provided API key
+            if not self.api_key:
+                raise ValueError("API key is required for Fireworks provider")
+            openai.api_key = os.getenv("FIREWORKS_API_KEY")
         elif self.provider == 'huggingface':
             # Initialize Hugging Face model pipeline
             self.pipeline = pipeline('text-generation', model=self.model_name)
@@ -56,6 +62,12 @@ class Model:
             # Generate text using OpenAI's GPT-3 model
             response = openai.Completion.create(engine=self.model_name, prompt=prompt, **kwargs)
             return response.choices[0].text.strip()
+        elif self.provider == 'fireworks':
+            reponse = fireworks.client.Completion.create(
+                model=self.model_name,
+                prompt=prompt, **kwargs
+            )
+            self.model_name
         elif self.provider == 'huggingface':
             # Generate text using the Hugging Face model pipeline
             result = self.pipeline(prompt, **kwargs)
