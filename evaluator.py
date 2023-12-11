@@ -2,13 +2,15 @@ import pickle
 import random
 
 class EvaluatorParams:
-    def __init__(self, gene_storage_path):
-        self.print_text_completion = False
-        self.store_text_completion = False
-        self.print_evaluation_steps = 0
+    def __init__(self, gene_storage_path, print_text_completion=True, store_text_completion=True, print_evaluation_steps=0):
         
         # Gene dictionary storage
         self.gene_storage_path = gene_storage_path
+        
+        # Print and storage
+        self.print_text_completion = print_text_completion
+        self.store_text_completion = store_text_completion
+        self.print_evaluation_steps = print_evaluation_steps
 
 class Evaluator:
     def __init__(self, params):
@@ -17,12 +19,16 @@ class Evaluator:
         self.gene_answers = {}
         pass
 
-    def evaluate(self, model, task, prompts, num_eval):
+    def evaluate(self, model, task, prompts, num_eval, test_indices=None):
         # Score of each prompt
         scores = []
         
         # Sample some test first
-        test_indices, test_samples = task.test_samples(num_eval)
+        if test_indices is None:
+            test_indices, test_samples = task.test_samples(num_eval)
+        else:
+            test_samples = [task.test()[i] for i in test_indices]
+        
         print(f"Evaluating test samples: {str(test_indices)}")
         
         for i, prompt in enumerate(prompts):
@@ -65,7 +71,7 @@ class Evaluator:
                 prompt.add_evaluation(test_index, correct, score)
                 
                 # Print current score so far
-                if self.params.print_evaluation_steps > 0 and i % self.params.print_evaluation_steps == 0:
+                if self.params.print_evaluation_steps > 0 and (i + 1) % self.params.print_evaluation_steps == 0:
                     print(f"Num evals: {prompt.get_num_evals()} - Accuracy: {prompt.get_accuracy() * 100:.2f}%")
                 
             scores.append(prompt.get_accuracy())  # Append the total score for the current prompt

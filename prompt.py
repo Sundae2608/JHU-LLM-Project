@@ -37,7 +37,7 @@ class Prompt:
         """
         Return a new prompt but essentially reset the scoring of it
         """
-        return Prompt(self.task, self.system_instruction, self.thinking_style, self.num_examples, self.gene_id, self.previous_mutation)
+        return Prompt(self.task, self.system_instruction, self.thinking_style, self.num_examples, self.gene_id, self.mutation_trace)
         
     def add_evaluation(self, index, correct, score):
         if index in self.evaluated_indices:
@@ -53,9 +53,13 @@ class Prompt:
         return self.num_correct / len(self.evaluated_indices)
 
     def _zero_shot_prompt(self, question):
+        if self.thinking_style == '':
+            user_prompt = f"{self.task}"
+        else:
+            user_prompt = f"{self.thinking_style}, {self.task}" 
         prompt = f"""
         SYSTEM: {self.system_instruction}
-        USER: {self.thinking_style}, {self.task}.
+        USER: {user_prompt}
         QUESTION: {question}
         ANSWER: 
         """
@@ -65,9 +69,13 @@ class Prompt:
         example_q = train_example["question"]
         example_a = train_example["answer"]
         
+        if self.thinking_style == '':
+            user_prompt = f"{self.task}"
+        else:
+            user_prompt = f"{self.thinking_style}, {self.task}" 
         prompt = f"""
         SYSTEM: {self.system_instruction}
-        USER: {self.thinking_style}, {self.task}.
+        USER: {user_prompt}
         QUESTION: {example_q}
         ANSWER: {example_a}
         QUESTION: {question}
@@ -83,8 +91,13 @@ class Prompt:
             f"""
             QUESTION: {q}
             ANSWER: {a}""" for q, a in sampled_train_examples])
+        
+        if self.thinking_style == '':
+            user_prompt = f"{self.task}"
+        else:
+            user_prompt = f"{self.thinking_style}, {self.task}" 
         prompt = f"""SYSTEM: {self.system_instruction}
-            USER: {self.thinking_style}, {self.task}. {example_text}
+            USER: {user_prompt}. {example_text}
             QUESTION: {question}
             ANSWER: """
         return remove_leading_spaces_and_lines(prompt)
