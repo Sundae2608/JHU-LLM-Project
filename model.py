@@ -64,7 +64,7 @@ class Model:
                 prompt=prompt, **kwargs)
             return response.choices[0].text.strip()
         elif self.provider == 'fireworks':
-            time.sleep(5)
+            time.sleep(1)
             response = fireworks.client.Completion.create(
                 model=self.model_name, 
                 prompt=prompt, max_tokens=1000, **kwargs
