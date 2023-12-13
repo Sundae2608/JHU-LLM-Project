@@ -28,18 +28,18 @@ class Dataset:
         return examples
 
 
-    def pick_random_problems(self, num_problems:int):
+    def pick_random_problems(self, num_problems:int, set='train'):
 
         problems, answers = [], []
 
-        indexes = np.random.randint(len(self.dataset['train']), size=num_problems)
+        indexes = np.random.randint(len(self.dataset[set]), size=num_problems)
 
         for index in indexes:
 
             if self.dataset_name == 'gsm8k':
 
-                problems.append('Q: ' + self.dataset['train'][int(index)]['question'] + '\nA: ')
-                answers.append(self.dataset['train'][int(index)]['answer'])
+                problems.append('Q: ' + self.dataset[set][int(index)]['question'] + '\nA: ')
+                answers.append(self.dataset[set][int(index)]['answer'])
 
         return problems, answers
     

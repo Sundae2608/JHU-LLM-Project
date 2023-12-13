@@ -168,3 +168,76 @@ def best_prompts(results, exp_conditions, cutoff):
                 print('Num Exp:', results[i][j]['num_examples'])
                 print('---------------------------------------------------')
                 print()
+
+
+def experimental_setup(category, exp_conditions):
+
+    if not category in exp_conditions.keys():
+        raise Exception('Invalid category')
+    
+    for text in exp_conditions[category]:
+        print(text)
+
+
+
+def best_prompts_per_model(results, exp_conditions, cutoff):
+
+    with open('best_prompts_' + exp_conditions['llm']['model'] +'__.txt', 'w') as f:
+
+        generations = len(results.keys()) - 1
+        individuals = len(results[0].keys())      
+
+        for i in range(generations):
+            for j in range(individuals):
+                if results[i][j]['fitness'] >= cutoff:
+
+                    fitness = results[i][j]['fitness']
+                    sys_prompt = exp_conditions['sys_prompts'][results[i][j]['sys_prompt_idx']]
+                    inst_prompt = exp_conditions['instructions'][results[i][j]['instruction_idx']]
+
+                    f.write(f'Generation: {i} -- Fitness: {fitness}')
+                    f.write('\n')
+                    f.write('\n')
+                    f.write('-----------------------------------------------------------')
+                    f.write('\n')
+                    f.write('---------------------- Prompt------------------------------')
+                    f.write('\n')
+                    f.write('-----------------------------------------------------------')
+                    f.write('\n')
+                    f.write('\n')
+
+                    f.write('--------------------- System prompt-------------------------')
+                    f.write('\n')
+                    f.write('\n')
+                    f.write(sys_prompt)
+                    f.write('\n')
+                    f.write('\n')
+
+                    f.write('-------------------- Instruction prompt --------------------')
+                    f.write('\n')
+                    f.write('\n')
+                    f.write(inst_prompt)
+                    f.write('\n')
+                    f.write('\n')
+
+                    f.write('--------------- Examples given in the prompt ---------------')
+                    f.write('\n')
+                    f.write('\n')
+
+                    for i in range(results[i][j]['num_examples']):
+
+                        example = exp_conditions['examples'][i]
+                        f.write(example)
+
+                    f.write('\n')
+                    f.write('\n')
+                    f.write('---------------------------------------------------------------')
+                    f.write('\n')
+                    f.write('---------------------------------------------------------------')
+                    f.write('\n')
+                    f.write('---------------------------------------------------------------')
+                    f.write('\n')
+                    f.write('\n')
+
+
+

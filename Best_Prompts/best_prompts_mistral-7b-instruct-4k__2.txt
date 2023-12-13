@@ -1,0 +1,42 @@
+Generation: 8 -- Fitness: 0.8
+
+-----------------------------------------------------------
+---------------------- Prompt------------------------------
+-----------------------------------------------------------
+
+--------------------- System prompt-------------------------
+
+Tackle this using computational methods.
+
+-------------------- Instruction prompt --------------------
+
+As a math teacher, I would approach this problem by first understanding the context and purpose of the assistant. I would research the capabilities and limitations of the assistant and how it can be used to assist in problem-solving and decision-making. I would also consider the ethical implications of using an assistant and ensure that it aligns with my values and principles.
+
+Once I have a clear understanding of the assistant's capabilities and limitations, I would develop a set of guidelines for how it should be used. This would include guidelines for how it should respond to different types of questions and requests, as well as guidelines for how it should handle sensitive or confidential information.
+
+I would also develop a system for evaluating the assistant's performance and ensuring that it is meeting the desired standards. This would involve testing the assistant with different scenarios and evaluating its responses to ensure that they are accurate, fair, and unbiased.
+
+Overall, my approach would be to use the assistant as a tool to assist in problem-solving and decision-making, but always with caution and consideration for the ethical implications of its use.
+
+--------------- Examples given in the prompt ---------------
+
+Q: Allen ordered five boxes of pizza, which cost $7 each box. He then gave a tip which amounts to 1/7 of the total cost of his order. If he gave the delivery man $100, how much change did he receive?
+A: The total cost of five boxes of pizza is $7 x 5 =$<<7*5=35>>35.
+He gave $35 x 1/7 = $<<35*1/7=5>>5 tip to the delivery man.
+He spent a total of $35 + $5 = $<<35+5=40>>40 for the pizza and the tip.
+The change that he received is $100 - $40 = $<<100-40=60>>60.
+#### 60Q: A couple's wedding reception had 180 people. The bride and groom had each invited 20 couples from their side of the family. The remaining guests were friends. How many friends attended the reception?
+A: From the bride's side, 20 couples * 2 guests/couple = <<20*2=40>>40 guests attended
+From the groom's side, 20 couples * 2 guests/couple = <<20*2=40>>40 guests attended
+Therefore 180 guests - (40 guests + 40 guests) = <<180-(40+40)=100>>100 friends attended the reception
+#### 100Q: Eddie can bake 3 pies a day. His sister can bake 6 pies while his mother can bake 8 pies a day. How many pies will they be able to bake in 7 days?
+A: Eddie bakes 3 x 7 = <<3*7=21>>21 pies for 7 days.
+His sister bakes 6 x 7 = <<6*7=42>>42 pies for 7 days.
+His mother can bake 8 x 7 = <<8*7=56>>56 pies for 7 days.
+Therefore, they are able to bake 21 + 42 + 56 = <<21+42+56=119>>119 pies in 7 days.
+#### 119
+
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+
