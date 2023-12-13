@@ -351,7 +351,7 @@ class  PopulationMember():
 class GeneticAlgo():
      def __init__(self,population_size,carry_forward_next_gen):
          self.population_size=population_size
-         #self.fitness_score=np.zeros((population_size,1), dtype=float)
+         self.accuracy=np.zeros((population_size,1), dtype=float)
          self.population=[]
          self.carry_forward_next_gen=carry_forward_next_gen
          #Garbage value of fitness score to test w/o calling API
@@ -380,16 +380,21 @@ class GeneticAlgo():
              evaluations=self.population[i].evaluate_problems(problems_prompt,answers,model_name,lcpp_llm,openai_client)
              self.problems_solved[i]+=len(evaluations)
              self.num_correct[i]+=np.sum(evaluations)
-             accuracy=self.num_correct[i]/self.problems_solved[i]*100 
+             self.accuracy[i]=self.num_correct[i]/self.problems_solved[i]*100 
              #accuracy=np.sum(evaluations)/len(evaluations)*100
-             self.fitness_score[i]=accuracy
+             #old Fitness measure only account for accuracy in current evaluation 
+             #self.fitness_score[i]=accuracy
+             #new fitness metric. Give partial importance to number of problems correctly solved
+             #alpha indicates importantance given to total number of correct answers
+             alpha=0.25
+             self.fitness_score[i]=self.accuracy[i]+(alpha*10*self.num_correct[i])
      
      def  update_stats(self):
          for i in range(self.population_size):
              cur_gene=self.population[i].gene
              self.sys_prompt_histogram[cur_gene[0]]+=1
-             self.instr_prompt_histogram[cur_gene[0]]+=1
-             self.example_prompt_histogram[cur_gene[0]]+=1
+             self.instr_prompt_histogram[cur_gene[1]]+=1
+             self.example_prompt_histogram[cur_gene[2]]+=1
              
      
      def crossover(self,parent1,parent2):
@@ -451,45 +456,50 @@ class GeneticAlgo():
          self.problems_solved[idx[3]]=0
          self.num_correct[idx[3]]=0
 
-def generate_plots(genetic,num_generations):
-         fig, axs = plt.subplots(2, 3)
+def generate_plots_histogram(genetic):
+         fig, axs = plt.subplots(3)
          
          x = np.linspace(0, genetic.num_sys_prompts,genetic.num_sys_prompts)
-         axs[0, 0].scatter(x, genetic.sys_prompt_histogram)
-         axs[0,0].set_xlabel('Sys Prompt Index')
-         axs[0,0].set_ylabel('Frequency')
-         axs[0,0].set_title('System Prompt')
+         axs[0].scatter(x, genetic.sys_prompt_histogram)
+         axs[0].set_xlabel('Sys Prompt Index')
+         axs[0].set_ylabel('Frequency')
+         axs[0].set_title('System Prompt Histogram')
          
          x = np.linspace(0, genetic.num_instructions, genetic.num_instructions)
-         axs[0, 1].scatter(x, genetic.instr_prompt_histogram)
-         axs[0,1].set_xlabel('Instruction Prompt Index')
-         #axs[0,1].set_ylabel('Frequency')
-         axs[0,1].set_title('Instruction Prompt')
+         axs[1].scatter(x, genetic.instr_prompt_histogram)
+         axs[1].set_xlabel('Instruction Prompt Index')
+         axs[1].set_ylabel('Frequency')
+         axs[1].set_title('Instruction Prompt')
          
          x = np.linspace(0, genetic.max_num_examples, genetic.max_num_examples)
-         axs[0, 2].scatter(x, genetic.example_prompt_histogram)
-         axs[0,2].set_xlabel('Num Examples in Prompt ')
-         #axs[0,2].set_ylabel('Frequency')
-         axs[0,2].set_title('Examples in Prompt')
-         
+         axs[2].scatter(x, genetic.example_prompt_histogram)
+         axs[2].set_xlabel('Num Examples in Prompt ')
+         axs[2].set_ylabel('Frequency')
+         axs[2].set_title('Examples in Prompt')
+         plt.tight_layout()
+         plt.show()
+ 
+def generate_accuracy_plots(num_generations):
+         fig, axs = plt.subplots(2)
          x= np.linspace(0, num_generations,num_generations)
-         axs[1,0].plot(x,avg_gen , label = "Average") 
-         axs[1,0].set_xlabel('Generation ')
-         axs[1,0].set_ylabel('Average Accuaracy ')
-         axs[1,0].set_title('Average Accuaracy ')
+         axs[0].plot(x,avg_gen , label = "Average") 
+         axs[0].set_xlabel('Generation ')
+         axs[0].set_ylabel('Average Accuaracy ')
+         axs[0].set_title('Average Accuaracy ')
          
          x= np.linspace(0, num_generations, num_generations)
-         axs[1,1].plot(x,stddev_gen , label = "Std Dev") 
-         axs[1,1].set_xlabel('Generation ')
-         axs[1,1].set_ylabel('Std deviation Accuaracy')
-         axs[1,1].set_title('Standard Deviation of accuracy')
+         axs[1].plot(x,stddev_gen , label = "Std Dev") 
+         axs[1].set_xlabel('Generation ')
+         axs[1].set_ylabel('Std deviation Accuaracy')
+         axs[1].set_title('Standard Deviation of accuracy')
+         plt.tight_layout()
          plt.show()
         
-model_name="GPT_3" 
+#model_name="GPT_3" 
 #model_name="DAVINCI"       
 #select_model("GPT_3")
 #select_model(model_name)
-#model_name="FIREWORKS_LLAMA_13"
+model_name="FIREWORKS_LLAMA_13"
 #model_name="FIREWORKS_LLAMA_70"
 
 dataset = load_dataset("gsm8k", 'main')
@@ -532,10 +542,13 @@ for generation in range(num_generations):
      fo.write(output_string)
      fo.flush()
      genetic.compute_fitness_score(generation,problems,dataset)
-     avg_gen[generation]=np.average(genetic.fitness_score)
-     print('Accuracy of  population is ',np.transpose(genetic.fitness_score),'%')
-     stddev_gen[generation]=np.std(genetic.fitness_score)
-     output_string='Accuracy of  population is '+str(np.transpose(genetic.fitness_score))+'%'+' Average Accuracy is '+str(avg_gen[generation])+'\n'
+     avg_gen[generation]=np.average(genetic.accuracy)
+     print('Accuracy of  population is ',np.transpose(genetic.accuracy),'%')
+     print('Fitness Score of  population is ',np.transpose(genetic.fitness_score))
+     stddev_gen[generation]=np.std(genetic.accuracy)
+     output_string='Accuracy of  population is '+str(np.transpose(genetic.accuracy))+'%'+' Average Accuracy is '+str(avg_gen[generation])+'\n'
+     fo.write(output_string)
+     output_string='Fitness Score of  population is '+str(np.transpose(genetic.fitness_score))+'\n'
      fo.write(output_string)
      output_string='Number Solved is '+str(np.transpose(genetic.problems_solved))+'\n'
      fo.write(output_string)
@@ -547,7 +560,8 @@ for generation in range(num_generations):
 # End time
 end_time = time.time()
 fo.close()
-generate_plots(genetic,num_generations)
+generate_plots_histogram(genetic)
+generate_accuracy_plots(num_generations)
 
 # Calculate elapsed time
 elapsed_time = end_time - start_time
