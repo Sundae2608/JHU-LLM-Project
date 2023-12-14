@@ -1,5 +1,7 @@
+import fireworks.client
 import openai
 import os
+import time
 from transformers import pipeline
 from ctransformers import AutoModelForCausalLM
 
@@ -21,15 +23,16 @@ class Model:
         self.model_name = model_name
         self.model_file = model_file
         self.model_type = model_type
-        self.api_key = os.getenv("OPENAI_KEY")
+        self.api_key = None
         self.pipeline = None
         self.ctransformer_llm = None
 
         if self.provider == 'openai':
             # Initialize OpenAI API with the provided API key
-            if not self.api_key:
-                raise ValueError("API key is required for OpenAI provider")
             openai.api_key = os.getenv("OPENAI_KEY")
+        if self.provider == 'fireworks':
+            # Initialize OpenAI API with the provided API key
+            fireworks.client.api_key = os.getenv("FIREWORKS_API_KEY")
         elif self.provider == 'huggingface':
             # Initialize Hugging Face model pipeline
             self.pipeline = pipeline('text-generation', model=self.model_name)
@@ -54,7 +57,18 @@ class Model:
         """
         if self.provider == 'openai':
             # Generate text using OpenAI's GPT-3 model
-            response = openai.Completion.create(engine=self.model_name, prompt=prompt, **kwargs)
+            time.sleep(5)
+            response = openai.Completion.create(
+                engine=self.model_name, 
+                max_tokens=1000, 
+                prompt=prompt, **kwargs)
+            return response.choices[0].text.strip()
+        elif self.provider == 'fireworks':
+            time.sleep(5)
+            response = fireworks.client.Completion.create(
+                model=self.model_name, 
+                prompt=prompt, max_tokens=1000, **kwargs
+            )
             return response.choices[0].text.strip()
         elif self.provider == 'huggingface':
             # Generate text using the Hugging Face model pipeline

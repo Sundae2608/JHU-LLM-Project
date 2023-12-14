@@ -1,0 +1,11 @@
+Reword the given instruction to make it more suitable for a younger audience, using simpler language and concepts.
+Rewrite the instruction to include an additional step that emphasizes verifying the solution through an alternative method.
+Rewrite the instruction to pose it as a question, encouraging exploratory thinking rather than straightforward problem-solving.
+Rewrite the instruction into a multi-step process, breaking down the original directive into smaller, more detailed tasks.
+Convert the instruction into a format suitable for a puzzle or a game, making it more engaging and interactive.
+Rephrase the instruction to focus on the use of a specific mathematical tool or software, like a graphing calculator or a spreadsheet.
+Rewrite the instruction as if it were part of a collaborative group activity, where steps are divided among team members.
+Rewrite the instruction to include a challenge component, such as finding more than one method to reach the solution.
+Reformat the instruction to be in the form of a riddle, adding an element of mystery or intrigue to the problem-solving process.
+Rewrite the instruction to include a visual element, like drawing a diagram or graph to aid in the solution.
+Rewrite the instruction to be more concise.

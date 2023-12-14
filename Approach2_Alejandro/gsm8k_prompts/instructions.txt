@@ -1,0 +1,12 @@
+Draw a picture of the situation being described in the math word problem.
+Solve the math word problem by first converting the words into equations using algebraic notation. Then solve the equations for the unknown variables, and express the answer as an arabic numeral.
+Solve the math word problem by breaking the problem into smaller, more manageable parts.
+Give your answer as an arabic numeral.
+Generate the answer to a word problem and write it as a number.
+Work with other people to solve the problem, and give your answer as an arabic numeral.
+Solve the problem by explaining why systemic or structural issues would not be the cause of the issue.
+Draw a diagram representing the problem.
+Solve the math word problem, giving your answer as an equation that can be evaluated.
+Make a list of ideas for solving this problem, and apply them one by one to the problem to see if any progress can be made.
+Do NOT use words to write your answer.
+Solve the problem by describing how you get to the answer.

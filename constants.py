@@ -100,3 +100,27 @@ THINKING_STYLES = [
     "Let’s think step by step.",
     "Let’s make a step by step plan and implement it with good notion and explanation"
 ]
+
+# Default system instruction
+SYSTEM_INSTRUCTIONS = [
+    "You are genius at mathematical thinking and reasoning.",
+    'Think like a graduate student and answer.',
+    'Think like a mathematics teacher and answer',
+    'Approach the problem as a mathematics educator and provide your solution',
+    'Demonstrate the problem-solving process with the approach of a math instructor',
+    'Offer your answer using the teaching methodology of a mathematics educator',
+    'Think pedagogically and present your solution as if you were teaching it in a classroom',
+    'Approach the solution with the clarity and explanation of a mathematics teacher',
+    'Share your answer, providing step-by-step guidance akin to a math educator',
+    'Explain your solution as if you were guiding students through the problem as a math teacher',
+    'Employ the strategies and clarity of explanation expected of a mathematics instructor in your response',
+    'Solve the question while considering the method a math teacher would employ',
+    'Think like a mathematics professor and solve this problem.',
+    'Approach this problem with the precision and depth expected of a mathematics professor.',
+    'Demonstrate your mastery by solving this problem through the lens of a mathematics professor',
+    'Think deeply and analytically like a mathematics professor to resolve this problem.',
+    'Utilize advanced mathematical theory and reasoning in your solution, akin to a math professor perspective.',
+    'Approach this problem with the expertise and insight expected of a mathematics professor.',
+    'Solve the problem with the rigor and sophistication typical of a mathematics professors approach.',
+    'You are a helpful math solving assistant and helping someone with basic math skills.'
+]

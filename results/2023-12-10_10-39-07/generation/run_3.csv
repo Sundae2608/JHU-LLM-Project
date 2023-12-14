@@ -1,0 +1,11 @@
+Gene,Evaluations,Accuracy
+"('Overcome the arithmetic conundrum and communicate your response using only the numeral system we all know and love.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",40,0.325
+"('Compute the solution, expressing it as an Arabic number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",30,0.2
+"('Find the hidden treasure by decoding the riddle with your math skills.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",40,0.2
+"('Determine the outcome and state it as a number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",40,0.2
+"('Determine the answer and provide it in numerical form.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",20,0.25
+"('Travel through time and space with our character as you solve this out-of-this-world math problem.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",10,0.0
+"('Use your magical pencil to draw a picture that represents the solution.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.2
+"('Work out the numerical problem, offering the solution using the Hindu-Arabic numeral system.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",10,0.1
+"('Crack the math code and reveal the secret message.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",10,0.0
+"('Solve the math challenge, providing your answer as a complex mathematical equation.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.0

@@ -1,0 +1,4 @@
+Gene,Evaluations,Accuracy
+"('Solve the math word problem, giving your answer as an arabic numeral.', '', '', 0)",100,0.23
+"('Solve the math word problem, giving your answer as an arabic numeral.', '', '', 1)",100,0.36
+"('Solve the math word problem, giving your answer as an arabic numeral.', '', '', 3)",100,0.54

@@ -1,0 +1,11 @@
+Gene,Evaluations,Accuracy
+"('Use puns or play on words in the math word problem.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",20,0.1
+"('Overcome the arithmetic conundrum and communicate your response using only the numeral system we all know and love.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",20,0.3
+"('Determine the outcome and state it as a number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",20,0.15
+"('Derive the solution and provide it as an Arabic numeral.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",20,0.15
+"('Find the hidden treasure by decoding the riddle with your math skills.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",20,0.2
+"('Uncover the numerical conundrum, delivering your response as an Arabic figure.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",10,0.1
+"('Solve for the unknown and give your response as an Arabic number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.2
+"('Provide the numerical response for the math word problem.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.1
+"('Solve the math conundrum and unlock the secret of the ancient number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.1
+"('Compute the solution, expressing it as an Arabic number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",10,0.3

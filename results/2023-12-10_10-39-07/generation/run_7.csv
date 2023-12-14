@@ -1,0 +1,11 @@
+Gene,Evaluations,Accuracy
+"('Analyze and conquer this numerical equation to receive the outcome.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",30,0.16666666666666666
+"('Determine the answer and provide it in numerical form.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",60,0.2
+"('Overcome the arithmetic conundrum and communicate your response using only the numeral system we all know and love.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",79,0.24050632911392406
+"('Compute the solution and deliver it as a numeric value.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",30,0.2
+"('Reimagine it as a race against time through various historical mathematical milestones.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",30,0.1
+"('Unravel the secret code by solving the mathematical puzzle and reveal the location of the hidden treasure chest.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",10,0.0
+"('Solve the math word problem during a game of chess, record the answer as an Arabic numeral.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.4
+"('Use a stopwatch to time how quickly you can solve the math word', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",10,0.1
+"('Solve the math word problem like a master chef, combining ingredients in perfect proportions.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.0
+"('Compute the final result and give your answer in the form of an Arabic numeral.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",10,0.2

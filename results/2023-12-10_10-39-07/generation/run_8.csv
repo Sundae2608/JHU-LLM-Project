@@ -1,0 +1,11 @@
+Gene,Evaluations,Accuracy
+"('Solve the math word problem during a game of chess, record the answer as an Arabic numeral.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",20,0.35
+"('Overcome the arithmetic conundrum and communicate your response using only the numeral system we all know and love.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",89,0.23595505617977527
+"('Determine the answer and provide it in numerical form.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",70,0.17142857142857143
+"('Compute the solution and deliver it as a numeric value.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",40,0.175
+"('Compute the final result and give your answer in the form of an Arabic numeral.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",20,0.2
+"('Figure out how to arrange your values within an ordered pair and output the answer as a coordinate.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",10,0.1
+"('Identify the correct outcome to this math question and present it as a numerical figure.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.2
+"('Determine the total cost of buying 3 apples at $1 each, and 4 oranges at $0.50 each.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",10,0.0
+"('Present the numerical response following your calculation.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.0
+"('Break the cryptic calculation into pieces, then present the result with digits.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",10,0.1

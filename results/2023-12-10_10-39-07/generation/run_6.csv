@@ -1,0 +1,11 @@
+Gene,Evaluations,Accuracy
+"('Analyze and conquer this numerical equation to receive the outcome.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",20,0.25
+"('Overcome the arithmetic conundrum and communicate your response using only the numeral system we all know and love.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",69,0.21739130434782608
+"('Determine the answer and provide it in numerical form.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",50,0.22
+"('Reimagine it as a race against time through various historical mathematical milestones.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",20,0.1
+"('Compute the solution and deliver it as a numeric value.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",20,0.15
+"('Incorporate the math word problem into a song lyrics, with each verse providing clues to solving it.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.0
+"('Solve the equation and provide the answer in numerical form.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 2)",10,0.0
+"('Divide one positive number by another, stating your answer precisely with no fraction or mixed number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",10,0.0
+"('Unlock the secrets of the ancient temple by deciphering cryptic riddles and performing powerful calculations to gain access.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.0
+"('Decode the math riddle and discover the hidden treasure.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",10,0.0

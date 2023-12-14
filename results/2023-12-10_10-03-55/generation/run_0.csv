@@ -1,0 +1,8 @@
+Gene,Evaluations,Accuracy
+"('Solve the math word problem, giving your answer as an arabic numeral.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",9,0.0
+"('Pretend you are a secret agent who needs to encode your answer as a Morse code signal and translate it back to reveal the solution.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 3)",9,0.1111111111111111
+"('Crack the math mystery and reveal the secret number.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",9,0.0
+"('Compute the solution to this problem and write down the result.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 0)",6,0.0
+"('""Become a math wizard and conjure up the magic number by solving this enchanted word problem!""', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",6,0.0
+"('Comprehend and solve the arithmetic query, delivering the outcome as a numerical value following the Arabic numbering system.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 4)",3,0.0
+"('Show me the calculation you used to arrive at your solution.', 'You are genius at mathematical thinking and reasoning.', 'Think about this step by step.', 1)",3,0.0
