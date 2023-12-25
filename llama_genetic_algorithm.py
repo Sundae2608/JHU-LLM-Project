@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1FXJ7DJJJFcEQ9NyzNMtkX-NXXT1ngo2U
 
 # Install Required Packages and Install LLama Model
+Author:Sridhar Sharma
 """
 
 !pip install python-multipart

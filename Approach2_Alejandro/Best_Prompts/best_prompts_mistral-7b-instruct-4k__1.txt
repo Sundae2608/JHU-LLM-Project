@@ -1,0 +1,62 @@
+Generation: 12 -- Fitness: 0.9
+
+-----------------------------------------------------------
+---------------------- Prompt------------------------------
+-----------------------------------------------------------
+
+--------------------- System prompt-------------------------
+
+You're a tutor, patiently breaking down and explaining this math problem to a student who is just beginning their mathematical journey.
+
+-------------------- Instruction prompt --------------------
+
+Wow, that's a great riddle! Pencil lead is indeed a very useful tool for writing and drawing. It's amazing how something so simple can be used in so many ways. Do you have any other fun riddles you'd like to share?
+
+--------------- Examples given in the prompt ---------------
+
+Q: Jacoby wants to save money for a trip to Brickville. He needs to have $5000 total to go on his trip. He works a job earning $20 per hour and works 10 hours. He then finds he can sell cookies for $4 each, and he sells 24 pieces of cookies. With the money he has so far, he buys a lottery ticket for $10 and wins $500. Finally, he gets $500 from both of his sisters as a gift. How much more, in dollars, does Jacob need to go to Brickville?
+A: Jacob earns $20 per hour * 10 hours = $<<20*10=200>>200 for working.
+So he earns $4 each * 24 = $<<4*24=96>>96 for the cookies.
+So far he has earned $200 + $96 = $<<200+96=296>>296.
+He buys a lottery ticket so $296 - $10 = $<<296-10=286>>286 was left in his money.
+After winning in a lottery, he had a total of $500 + $286 = $<<500+286=786>>786.
+He gets $500 * 2 per sister = $<<500*2=1000>>1000 from her sisters.
+So he has so far $1000 + $786 = $<<1000+786=1786>>1786.
+He needs $5000 - $1786 = $<<5000-1786=3214>>3214.
+#### 3214Q: Tony is driving his car between his town and a friend's down. The towns are 120 miles apart and he gets there in 3 hours. The next day, he is driving to see another friend who lives 200 miles away from his friend. If he drives at the same speed, how long will the drive take?
+A: He is driving 40 MPH because 120 / 3 = <<120/3=40>>40
+It will take him 5 hours because 200 / 40 = <<200/40=5>>5
+#### 5Q: Diana earned $150 in July. She earned 3 times this amount in August. In September, She earned twice the money she earned in August. How much money did Diana earn over these three months?
+A: The amount of money Diana earned in August is 3 * $150 = $<<3*150=450>>450.
+The amount of money Diana earned in September is 2 * $450 = $<<2*450=900>>900.
+The total amount of money Diana earned over the three months is $150 + $450 + $900 = $<<150+450+900=1500>>1500.
+#### 1500Q: Jame's buys 100 head of cattle for $40,000.  It cost 20% more than that to feed them.  They each weigh 1000 pounds and sell for $2 per pound.  How much profit did he make?
+A: It cost .2*40000=$<<.2*40000=8000>>8000 more to feed than buy them
+So the total cost to feed them was 40000+8000=$<<40000+8000=48000>>48,000
+So in total it cost 48000+40000=$<<48000+40000=88000>>88,000
+Each cow sells for 2*1000=$<<2*1000=2000>>2000
+So he sells them for 2000*100=$<<2000*100=200000>>200,000
+So he makes a profit of 200,000-88,000=$<<200000-88000=112000>>112,000
+#### 112000Q: A busy restaurant is counting how many customers they had during that Friday to try to predict how many they might get on Saturday. During breakfast, they had 73 customers. During lunch, they had 127 customers. During dinner, they had 87 customers. If they predict they'll get twice the amount of customers on Saturday as they had on Friday, how many customers do they predict they will get?
+A: On Friday the restaurant had 73 customers for breakfast + 127 customers for lunch + 87 customers for dinner = <<73+127+87=287>>287 customers total on Friday.
+If they predict getting 2x the amount of customers on Saturday as on Friday, they will have 287 customers x 2 = <<287*2=574>>574 customers on Saturday.
+#### 574Q: Mark collects money for the homeless.  He visits 20 households a day for 5 days and half of those households give him a pair of 20s.  How much did he collect?
+A: He got money from 20/2=<<20/2=10>>10 households per day
+So that means he got money from 10*5=<<10*5=50>>50 households
+Each of those houses gave 20*2=$<<20*2=40>>40
+So he raised 40*50=$<<40*50=2000>>2000
+#### 2000Q: Olaf is playing a game with his dad. He scored three times more points than his dad, who scored 7 points. How many points did they score in total?
+A: Olaf scored three times more points than his dad, which means he scored 7 * 3 = <<3*7=21>>21 points.
+So in total, Olaf and his dad scored 21 + 7 = <<21+7=28>>28 points.
+#### 28Q: With 40 seconds left to play in the basketball game, the Dunkinville Hornets were leading the Fredingo Fireflies by a score of 86 to 74.  In the remaining seconds in the game, the Fireflies scored 7 three-point baskets while holding the Hornets to only 2 two-point baskets to win the game.  How many more points did the Fireflies score in the game than did the Hornets?
+A: In the final 40 seconds, the Fireflies scored seven 3-point baskets to improve their score by 3*7=<<7*3=21>>21 points.
+Thus, the Fireflies final total was 74+21=<<74+21=95>>95 points.
+In the final 40 seconds, the hornets scored an additional two 2-point baskets to improve their score by 2*2=<<2*2=4>>4 points.
+Thus, the Hornets final total was 86+4=<<86+4=90>>90 points.
+The final difference in points between the two teams was 95-90=<<95-90=5>>5 points.
+#### 5
+
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+
